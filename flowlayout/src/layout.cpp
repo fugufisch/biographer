@@ -212,9 +212,10 @@ void Network::find_compartments(){
    icompart.clear();
    ins_dif.clear();
    totcompart=0;
-   nowx=minix; nowy=miniy;
+   nowy=miniy;
    while(nowy<=maxiy){
       nh=0; //nh: number of compartments per row;
+      nowx=minix;
       while(nowx<=maxix){
          nh++;
          totcompart++;
@@ -228,9 +229,10 @@ void Network::find_compartments(){
    //number of nodes inside each compartments;
    compartlink.resize(n);
    for(i=0;i<n;i++){
-      k=(int)(pos[i].x/(1.5*maxh));
-      j=(int)(pos[i].y/(1.5*maxw));
+      k=(int)((pos[i].x-minix)/(1.5*maxh));
+      j=(int)((pos[i].y-miniy)/(1.5*maxw));
       k=k*nh+j;
+      compartlink[i]=k;
       ins_dif[k]++;
    }
    
@@ -242,7 +244,6 @@ void Network::find_compartments(){
       }
    
    //copying the non-empty compartments from "icompart" to "compartments".
-   compartments->clear();
    plink.resize(totcompart);
    k=0;
    for(i=0;i<totcompart;i++)
@@ -286,6 +287,7 @@ float Network::layout(){
       pre_force=cur_force;    
    }
    cout<<"number of iteration: "<<k<<endl;
+   cout<<cur_force<<endl;
    
    find_compartments();
    
@@ -300,8 +302,8 @@ float Network::layout(){
       pre_force=cur_force;    
    }
    
-   cout<<"number of iteration: "<<k<<endl;     
-   
+   cout<<"number of iteration: "<<k<<endl;    
+   cout<<cur_force<<endl;
    //copying coordinations from pos[] to nodes[];
    for(i=0;i<n;i++){
       (*nodes)[i].pts.x=pos[i].x;

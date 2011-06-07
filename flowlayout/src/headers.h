@@ -36,6 +36,9 @@ struct Edgeproperties{
 
 class Compartment{
 public:
+   Compartment(){
+                 
+   }
    Compartment(float _xmin, float _xmax, float _ymin, float _ymax){
       xmin=_xmin;
       xmax=_xmax;
