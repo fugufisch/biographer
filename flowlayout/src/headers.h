@@ -23,10 +23,12 @@
 using namespace std;
 
 enum Edgetype{
+     //five types of edges.
      directed,undirected,substrate,product,catalyst,activator,inhibitor
 };
 
 enum Nodetype {
+     //four types of nodes.
      none,reaction,compound,other
 };
 
@@ -37,12 +39,14 @@ struct Edgeproperties{
 class Compartment{
 public:
    Compartment(){
-                 
+      //default compartment constructor.            
    }
    Compartment(string _name){
+      //construct a compartment with a specified name (preferred in the algorithm).
       name=_name;
    }
    Compartment(float _xmin, float _xmax, float _ymin, float _ymax, string _name){
+      //construct a compartment with all attributes given.
       xmin=_xmin;
       xmax=_xmax;
       ymin=_ymin;
@@ -54,15 +58,17 @@ public:
 };
 
 struct Nodeproperties{ 
-   Nodetype type; 
+   //properties of nodes.
+   Nodetype type; //type of node.
    string name; //name of the node.
    float x,y;  //coordinates of the node.
-   float width, height;  //size of the node.
+   float width, height;  //horizontal and vertical sizes of the node.
    float dir; // default direction of node (in particular for reactions) - direction in which substrates should point to
-   int compartment;
+   int compartment; //the compartment that the node belongs to (eg. Cytosol).
 };
 
 struct Point{
+   //A point or a vector in a 2-dimensional plane.
    float x,y;
 };
 
