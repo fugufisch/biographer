@@ -876,7 +876,7 @@ float Network::layout(){
       cur_force+=calc_force_compartments();
       move_nodes();
       if(fabs(pre_force-cur_force)<pre_force*err)break;
-      if(cur_force>pre_force)inc++;
+      if(cur_force>pre_force || cur_force>inf)inc++;
       if(inc>log(1.0*n))break;
       pre_force=cur_force;
    }
@@ -892,7 +892,7 @@ float Network::layout(){
       cur_force+=calc_force_compartments();
       move_nodes();
       if(fabs(pre_force-cur_force)<pre_force*err)break;
-      if(cur_force>pre_force)inc++;
+      if(cur_force>pre_force || cur_force>inf)inc++;
       if(inc>log(1.0*n))break;
       pre_force=cur_force;
    } 
