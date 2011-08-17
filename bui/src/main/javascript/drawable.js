@@ -171,23 +171,26 @@
 
         /**
         * @description
-        * Remove a class from this drawable
+        * Remove a class from this drawable, if no parameter is passed remove all classes
         *
         * @param {String} klass the class which you want to remove
         * @return {bui.Drawable} Fluent interface
         */
         removeClass : function(klass) {
-            var classes = this._privates(identifier).classes;
+	    if(klass == undefined){//if undefine, remove all classes
+		this.fire(bui.Drawable.ListenerType.classes, [this, '']);
+	    } else {
+		    var classes = this._privates(identifier).classes;
 
-            var index = classes.indexOf(klass);
+		    var index = classes.indexOf(klass);
 
-            if (index != -1) {
-                classes.splice(index, 1);
-                this.fire(bui.Drawable.ListenerType.classes, [this,
-                    this.classString()]);
-            }
+		    if (index != -1) {
+			classes.splice(index, 1);
+			this.fire(bui.Drawable.ListenerType.classes, [this,
+			    this.classString()]);
+		    }
+	    }
 
-            return this;
         },
 
         /**
