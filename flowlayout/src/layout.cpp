@@ -327,13 +327,14 @@ float Network::firm_distribution(){
          2. for each edge-i, we tried to rotate it to the bisector of edge-(i-1) and edge-(i+1).
    */
    int i,j,jj,k,m,n=nodes->size(),tem,lnk;
+   int strength=0.02; //this should not be a major force for reactions , so we make it small.
    VI *neighbors;
-   float average,beta,d,force=0.0;
+   float average,beta,beta2,d,force=0.0;
    Point baseNode;
    for(k=0;k<n;k++){
       neighbors= getNeighbors(k);
       m=neighbors->size();
-      if(m<4)continue;
+      if(m<2)continue;
       baseNode=pos[k];
       for(i=0;i<m-1;i++) //1. sorting the edges in increasing order (by angle).
          for(j=i+1;j<m;j++)
@@ -344,10 +345,14 @@ float Network::firm_distribution(){
          //2. for each edge-i, we tried to rotate it to the bisector of edge-(i-1) and edge-(i+1).
          j=i+1; if(j==m)j=0;
          jj=i-1; if(jj<0)jj=m-1;
-         average=lim(lim(angle(pos[(*neighbors)[j]]-baseNode))+lim(angle(pos[(*neighbors)[jj]]-baseNode)))*0.5; //bisector of edge-(i-1) and edge-(i+1).
+//         average=lim(lim(angle(pos[(*neighbors)[j]]-baseNode))+lim(angle(pos[(*neighbors)[jj]]-baseNode)))*0.5; //bisector of edge-(i-1) and edge-(i+1).
+         beta2=lim(angle(pos[(*neighbors)[j]]-baseNode))-lim(angle(pos[(*neighbors)[jj]]-baseNode))
+         if (beta<=0) beta2+=2*PI
+         average=lim(lim(angle(pos[(*neighbors)[jj]]-baseNode))+beta2/2);
          beta=lim(average-lim(angle(pos[(*neighbors)[i]]-baseNode))); //angle difference (from edge-i to the bisector).
          d=dist(pos[(*neighbors)[i]],baseNode);
-         force+=(d*d*sin(0.5*fabs(beta)))*0.05/m; //this should not be a major force, so we make it small.
+         if ((*nodes)[k].pts.type!=reaction) strength=0.2; // for compounds we may enforce it a bit more
+         force+=(d*d*sin(0.5*fabs(beta)))*strength/m; 
          mov[j]=mov[j]+(to_left(pos[(*neighbors)[j]]-baseNode,beta*0.05/m)-pos[(*neighbors)[j]]+baseNode); //edge-i tends to rotate to the bisector.
       }
 	  delete neighbors; // we should delete neighbors in the loop as it is generated in each iteration.
