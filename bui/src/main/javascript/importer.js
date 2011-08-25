@@ -38,7 +38,7 @@
                 ['data', 'width'], ['data', 'height'])) {
             size.width = nodeJSON.data.width;
             size.height = nodeJSON.data.height;
-        } else if (node.sizeBasedOnLabel !== undefined) {
+        } else if (node.sizeBasedOnLabel !== undefined && (!(node._ignLabelSize))) {
             size = node.sizeBasedOnLabel();
 
             // some padding because of various shapes
