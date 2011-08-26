@@ -296,6 +296,9 @@
         this.bind(bui.Drawable.ListenerType.select,
                 selectChanged.createDelegate(this),
                 listenerIdentifier(this));
+        this.graph().bind(bui.Graph.ListenerType.scale,
+                positionPlaceHolder.createDelegate(this),
+                listenerIdentifier(this));
 
         initialPaint.call(this);
     };
