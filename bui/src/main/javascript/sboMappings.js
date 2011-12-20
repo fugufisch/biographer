@@ -11,14 +11,20 @@ addMapping(nodeMapping, [250, 251], bui.NucleicAcidFeature);
 addMapping(nodeMapping, [253], bui.Complex);
 addMapping(nodeMapping, [290], bui.Compartment);
 addMapping(nodeMapping, [375, 167], bui.Process);
-
+addMapping(nodeMapping, [-1], bui.Helper);
 
 addMapping(processNodeMapping, [375, 167], bui.Process);
+addMapping(processNodeMapping, [-1], bui.Helper);
+
+
 
 
 addMapping(edgeMarkerMapping, [19], bui.connectingArcs.modulation.id);
 addMapping(edgeMarkerMapping, [20], bui.connectingArcs.inhibition.id);
-addMapping(edgeMarkerMapping, [459, 15, 11], bui.connectingArcs.stimulation.id);
+addMapping(edgeMarkerMapping, [407], bui.connectingArcs.absoluteInhibition.id);
+addMapping(edgeMarkerMapping, [464], bui.connectingArcs.assignment.id);
+//addMapping(edgeMarkerMapping, [342], bui.connectingArcs.interaction.id);
+addMapping(edgeMarkerMapping, [459, 15, 11, 10], bui.connectingArcs.stimulation.id);
 addMapping(edgeMarkerMapping, [461],
         bui.connectingArcs.necessaryStimulation.id);
 addMapping(edgeMarkerMapping, [13], bui.connectingArcs.catalysis.id);

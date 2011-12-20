@@ -115,9 +115,11 @@ bui.settings = {
             lineHover : 'lineHover',
             connectingArcs : {
                 stimulation : 'stimulation',
+                assignment : 'assignment',
                 catalysis : 'catalysis',
                 modulation : 'modulation',
-                necessaryStimulation : 'necessaryStimulation'
+                necessaryStimulation : 'necessaryStimulation',
+                absoluteInhibition : 'absoluteInhibition'
             },
             splineEdgeHandle : 'splineEdgeHandle',
             splineAutoEdgeHandle : 'autoAlign',
@@ -164,6 +166,10 @@ bui.settings = {
         processNodeMinSize : {
             width : 26,
             height : 26
+        },
+        helperNodeMinSize : {
+            width : 5,
+            height : 5
         },
         edgeToNodePadding : {
             topBottom : 5,

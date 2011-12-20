@@ -100,6 +100,46 @@
     };
 
     /**
+     * Generator for a assignment connecting arc.
+     *
+     * This generates a simple triangle.
+     *
+     * @return {Object} An object with id and element properties. The id
+     *   property holds the id of the marker and the element property the
+     *   generated element.
+     */
+    bui.connectingArcs.assignment = function() {
+        return createPathWithData('M0,0 S10,10,0,20 L20,10 Z', 20, 10, 20, 20,
+                bui.settings.css.classes.connectingArcs.assignment);
+    };
+
+    /**
+     * @field Identifier for this connecting arc type.
+     */
+    bui.connectingArcs.assignment.id = 'assignment';
+    
+
+    /**
+     * Generator for a stimulation connecting arc.
+     *
+     * This generates a simple triangle.
+     *
+     * @return {Object} An object with id and element properties. The id
+     *   property holds the id of the marker and the element property the
+     *   generated element.
+     */
+    bui.connectingArcs.stimulation = function() {
+        return createPathWithData('M0,0L20,10L0,20Z', 20, 10, 20, 20,
+                bui.settings.css.classes.connectingArcs.stimulation);
+    };
+
+    /**
+     * @field Identifier for this connecting arc type.
+     */
+    bui.connectingArcs.stimulation.id = 'stimulation';
+
+
+    /**
      * Generator for a stimulation connecting arc.
      *
      * This generates a simple triangle.
@@ -137,6 +177,26 @@
      */
     bui.connectingArcs.inhibition.id = 'inhibition';
 
+    /**
+     * Generator for a absolute inhibition connecting arc.
+     *
+     * This generates an inhibition with an additional line.
+     *
+     * @return {Object} An object with id and element properties. The id
+     *   property holds the id of the marker and the element property the
+     *   generated element.
+     */
+    bui.connectingArcs.absoluteInhibition = function() {
+        return createPathWithData('M0,0 V25 M10,0 V25Z', 10, 12, 10, 26,
+            //bui.settings.css.classes.connectingArcs.absoluteInhibition);
+            bui.settings.css.classes.connectingArcs.necessaryStimulation);
+	    //);
+    };
+
+    /**
+     * @field Identifier for this connecting arc type.
+     */
+    bui.connectingArcs.absoluteInhibition.id = 'absoluteInhibition';
     
     /**
      * Generator for a catalysis connecting arc.
@@ -192,7 +252,7 @@
      *   generated element.
      */
     bui.connectingArcs.necessaryStimulation = function() {
-        return createPathWithData('M0,0V20 M5,0L25,10L5,20Z', 25, 10, 26, 26,
+        return createPathWithData('M0,0 V20 M10,0 L25,10L10,20Z', 25, 10, 26, 26,
             bui.settings.css.classes.connectingArcs.necessaryStimulation);
     };
 

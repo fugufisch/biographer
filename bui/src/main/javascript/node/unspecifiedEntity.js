@@ -54,5 +54,12 @@
         initialPaint.call(this);
     };
 
+    bui.UnspecifiedEntity.prototype = {
+        identifier : function() {
+            return identifier;
+        },
+        _minWidth : 70,
+        _minHeight : 50,
+    }
     bui.util.setSuperClass(bui.UnspecifiedEntity, bui.Labelable);
 })(bui);
