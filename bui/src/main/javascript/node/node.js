@@ -606,7 +606,7 @@
                         y -= diffY;
                         setTimeout(arguments.callee, timeOffset);
                     } else {
-		      if (finishedListener) finishedlistener();
+		      if (finishedListener) finishedListener();
 		    }
                 })();
             }

@@ -376,6 +376,7 @@
         }
 
         var nodesJSON = data.nodes, i;
+	var listener_set=false;
         for (i = 0; i < nodesJSON.length; i++) {
             var nodeJSON = nodesJSON[i],
                     node = optimizedDrawables[nodeJSON.id];
@@ -405,8 +406,9 @@
             var x = nodeJSON.data.x,
                     y = nodeJSON.data.y,
                     currentPosition = node.position();
-	    if (i==nodesJSON.length-1){
+	    if (!listener_set){
 	      node.move(x - currentPosition.x, y - currentPosition.y, duration, finishListener); // the last node will call the finishListener
+	      listener_set=true;
 	    } else {
 	      node.move(x - currentPosition.x, y - currentPosition.y, duration);
 	    }
