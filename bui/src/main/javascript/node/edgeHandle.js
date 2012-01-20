@@ -30,7 +30,7 @@
 
         privates.circle = document.createElementNS(bui.svgns, 'circle');
         sizeChanged.call(this, this, this.size().width);
-        this.nodeGroup().appendChild(privates.circle);
+      this.nodeGroup().appendChild(privates.circle);
     };
     
     /**

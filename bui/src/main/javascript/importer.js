@@ -52,18 +52,48 @@
             node.addClass(nodeJSON.data.cssClasses);
         }
 
+        if(('clone_marker' in nodeJSON.data)&&(nodeJSON.data.clone_marker == true)){
+            node.addClass('cloneMarker');
+        }
+
         node.size(size.width, size.height)
                 .visible(true);
 
         nodeJSON.data.width = size.width;
         nodeJSON.data.height = size.height;
 
+        // generic state variables
+        if (bui.util.propertySetAndNotNull(nodeJSON,
+                ['data', 'statevariable'])) {
+            var variables = nodeJSON.data.statevariable;
+            var state_class_obj = bui.StateVariable;
+            if(bui.settings.SBGNlang == 'ER'){
+                state_class_obj = bui.StateVariableER;
+            }
+            for (var i = 0; i < variables.length; i++) {
+                statevar = graph.add(state_class_obj)
+                        .label(variables[i])
+                        .parent(node)
+                        .visible(true)
+                        .size(60,14)
+                        .json(variables[i]);//FIXME needs to be added to json, no clue what this does
+                if((bui.settings.SBGNlang == 'ER')&&(variables[i] == 'existance')){
+                    statevar.label('').addClass('existance').size(14,14);
+                }
+                if((bui.settings.SBGNlang == 'ER')&&(variables[i] == 'location')){
+                    statevar.label('').addClass('location').size(14,14);
+                    //statevar.privates.labelElement.setAttributeNS(null, 'transform', 'rotate(-45,7,7)');
+                }
+            }
+        }
         if (bui.util.propertySetAndNotNull(nodeJSON,
                 ['data', 'modification'])) {
+            alert ('xyrock');
             var modifications = nodeJSON.data.modification;
 
             for (var i = 0; i < modifications.length; i++) {
                 var modification = modifications[i];
+                //log('adding modification');
 
                 var label, mapping = retrieveFrom(modificationMapping,
                         modification[0]);
@@ -210,17 +240,50 @@
     var addAllEdges = function(graph, data, generatedNodes) {
         var edges = data.edges;
 
+        var edge_stack = [];
+        var drawables = graph.drawables();
+        var generatedEdges = {};
         for (var i = 0; i < edges.length; i++) {
             var edgeJSON = edges[i], edge;
 
-            var source = generatedNodes[edgeJSON.source];
-            var target = generatedNodes[edgeJSON.target];
 
-            if (source === undefined) {
-                log('Edge source ' + edgeJSON.source + ' could not be found.');
-                continue;
-            } else if (target === undefined) {
-                log('Edge target ' + edgeJSON.target + ' could not be found.');
+            var source = undefined;
+            //if there are ports defined (molecule:domain-port) make them to the target
+            if (edgeJSON.source.indexOf(':') != -1){
+                node_ids = edgeJSON.source.split(':');
+                source = generatedNodes[node_ids[0]];
+                if (source !== undefined) {
+                    children = source.children();
+                    for(var j = 0;j<children.length;j++){
+                        if((children[j].label() == node_ids[1])||(children[j].hasClass(node_ids[1]))){
+                            source = drawables[children[j].id()];
+                            break;
+                        }
+                    }
+                }
+            }else{
+                var source = generatedNodes[edgeJSON.source];
+            }
+            var target = undefined;
+            //if there are ports defined (molecule:domain-port) make them to the target
+            if (edgeJSON.target.indexOf(':') != -1){
+                node_ids = edgeJSON.target.split(':');
+                target = generatedNodes[node_ids[0]];
+                if (target !== undefined) {
+                    var children = target.children();
+                    for(var j = 0;j<children.length;j++){
+                        if((children[j].label() == node_ids[1])||(children[j].hasClass(node_ids[1]))){
+                            target = drawables[children[j].id()];
+                            break;
+                        }
+                    }
+                }
+            }else{
+                target = generatedNodes[edgeJSON.target];
+            }
+
+            if ((source === undefined)||(target === undefined)) {
+                edge_stack.push(edgeJSON);
                 continue;
             }
 
@@ -228,29 +291,47 @@
             edgeJSON.data = edgeJSON.data || {};
 
             if (edgeJSON.data.handles !== undefined && edgeJSON.data.handles.length>=4) {
-               edge = graph.add(bui.Spline)
-               .layoutElementsVisible(false);
+                edge = graph.add(bui.Spline)
+                    .layoutElementsVisible(false);
 
-               edge.json(edgeJSON).source(source).target(target);
-               
-               if (edgeJSON.data.points !== undefined) {
-                  edge.setSplinePoints(edgeJSON.data.points);
-               }
-               if (edgeJSON.data.handles !== undefined) {
-                  edge.setSplineHandlePositions(edgeJSON.data.handles);
-               }
+                edge.json(edgeJSON).source(source).target(target);
+
+                if (edgeJSON.data.points !== undefined) {
+                    edge.setSplinePoints(edgeJSON.data.points);
+                }
+                if (edgeJSON.data.handles !== undefined) {
+                    edge.setSplineHandlePositions(edgeJSON.data.handles);
+                }
             } else {
-               edge = graph.add(bui.Edge);
-               edge.json(edgeJSON).source(source).target(target);
+                edge = graph.add(bui.Edge);
+                edge.json(edgeJSON).source(source).target(target);
             }
 
 
             if (edgeJSON.sbo !== undefined) {
-                try {
+                if (edgeJSON.sbo == 342){//SBO:0000342 molecular or genetic interaction
+                    // source and tartget are the same molecule add cis/trans infobox 
+                    var pos = edge.source().absoluteCenter();
+                    var handle = graph.add(bui.RectangularNode)
+                            .positionCenter(pos.x+80, pos.y)
+                            .visible(true)
+                            .size(50,20)
+                            .label(edgeJSON.data.cis_trans);
+                    edge.json(edgeJSON).source(handle).target(target);
+                    back_edge = graph.add(bui.Edge);
+                    back_edge.json(edgeJSON).source(handle).target(source);
                     var marker = retrieveFrom(edgeMarkerMapping, edgeJSON.sbo);
+                    back_edge.marker(marker.klass);
                     edge.marker(marker.klass);
-                } catch (e) {
-                    log(e);
+                    back_edge.addPoint(pos.x+80, pos.y-20);
+                    edge.addPoint(pos.x+80, pos.y+20);
+                }else{
+                    try {
+                        var marker = retrieveFrom(edgeMarkerMapping, edgeJSON.sbo);
+                        edge.marker(marker.klass);
+                    } catch (e) {
+                        log(e);
+                    }
                 }
             }
 
@@ -260,7 +341,95 @@
             }
 
             edge.visible(true);
+            generatedEdges[edgeJSON.id] = edge;
         }
+
+        var last_len = edge_stack.length + 1;
+        //alert(edge_stack.length);
+        while ((edge_stack.length > 0) && (edge_stack.length<last_len)){
+            for(var i = 0; i<edge_stack.length;i++){
+                last_len = edge_stack.length;
+                var edgeJSON = edge_stack[i];
+                //alert(edge_stack.length+'Processing '+JSON.stringify(edgeJSON));
+                //---------------------------
+                var target = undefined;
+                if (edgeJSON.target.indexOf(':') != -1){
+                    node_ids = edgeJSON.target.split(':');
+                    target = generatedNodes[node_ids[0]];
+                    if (target !== undefined) {
+                        var children = target.children();
+                        for(var j = 0;j<children.length;j++){
+                            if((children[j].label() == node_ids[1])||(children[j].hasClass(node_ids[1]))){
+                                target = drawables[children[j].id()];
+                                break;
+                            }
+                        }
+                    }
+                }else{
+                    target = generatedNodes[edgeJSON.target];
+                }
+                if(target === undefined){
+                    var target_edge = generatedEdges[edgeJSON.target];
+                    if (target_edge === undefined){
+                        continue;
+                    } 
+                    var sp = target_edge.source().absoluteCenter();
+                    var tp = target_edge.target().absoluteCenter();
+                    target = target_edge.addPoint((sp.x+tp.x)/2, (sp.y+tp.y)/2);
+                }
+                //---------------------------
+                var source = undefined; 
+                if (edgeJSON.source.indexOf(':') != -1){
+                    node_ids = edgeJSON.source.split(':');
+                    source = generatedNodes[node_ids[0]];
+                    if (source !== undefined) {
+                        children = source.children();
+                        for(var j = 0;j<children.length;j++){
+                            if((children[j].label() == node_ids[1])||(children[j].hasClass(node_ids[1]))){
+                                source = drawables[children[j].id()];
+                                break;
+                            }
+                        }
+                    }
+                }else{
+                    source = generatedNodes[edgeJSON.source];
+                }
+                if(source===undefined){
+                    var source_edge = generatedEdges[edgeJSON.source];
+                    if (source_edge === undefined){
+                        continue;
+                    } 
+                    var sp = source_edge.source().absoluteCenter();
+                    var tp = source_edge.target().absoluteCenter();
+                    source = source_edge.addPoint((sp.x+tp.x)/2, (sp.y+tp.y)/2, 'Outcome');//FIXME this does not give the proper positions ... y???
+                }
+                //---------------------------
+                //---------------------------
+                if ((source === undefined)||(target === undefined)) continue
+                rm_elem = edge_stack.splice(i,1);
+                //alert('success '+JSON.stringify(rm_elem));
+                edge = graph.add(bui.Edge);
+                edge.source(source).target(target);//.json(edgeJSON);
+                var marker = retrieveFrom(edgeMarkerMapping, edgeJSON.sbo);
+                edge.marker(marker.klass);
+                generatedEdges[edgeJSON.id] = edge;
+            }
+        }
+        //alert(edge_stack.length);
+        /*for(edge_id in generatedEdges){
+            edge = generatedEdges[edge_id];
+            edge.recalculatePoints();//FIXME how to implement this in edge.js???
+        }*/
+        for(var i = 0; i<edge_stack.length; i++){
+            if ((generatedNodes[edge_stack[i].source] === undefined) && (generatedEdges[edge_stack[i].source] === undefined)){
+                log('Edge source '+edge_stack[i].source+' could not be found. '+edge_stack[i].id);
+            }
+            if ((generatedNodes[edge_stack[i].target] === undefined) && (generatedEdges[edge_stack[i].target] === undefined)){
+                log('Edge target '+edge_stack[i].target+' could not be found. '+edge_stack[i].id);
+            }
+            //log('Edge source '+edge_stack[i].source+' or target ' + edge_stack[i].target + ' could not be found.');
+        } 
+        log('Edge stack still contains '+String(edge_stack.length)+' edges');
     };
 
     /**
@@ -325,6 +494,11 @@
     bui.importFromJSON = function(graph, data) {
         var start = new Date().getTime();
         var suspendHandle = graph.suspendRedraw(20000);
+
+        if('sbgnlang' in data){
+            bui.settings.SBGNlang = data.sbgnlang; 
+        }
+        log('## Setting SBGN language to '+bui.settings.SBGNlang);
 
         log('## Importing all nodes');
         var generatedNodes = addAllNodes(graph, data);

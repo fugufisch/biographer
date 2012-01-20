@@ -228,9 +228,7 @@
      */
     bui.connectingArcs.absoluteInhibition = function() {
         return createPathWithData('M0,0 V25 M10,0 V25Z', 10, 12, 10, 26,
-            //bui.settings.css.classes.connectingArcs.absoluteInhibition);
             bui.settings.css.classes.connectingArcs.necessaryStimulation);
-	    //);
     };
 
     /**
