@@ -40,7 +40,7 @@ bui.clone = function(degree, select_drawables){
 			    .visible(true)
 			    .label(drawable.label())
                 .parent(drawable.parent())
-			    .addClass('cloneMarker')
+			    //.addClass('cloneMarker')
 			    .position(drawable.position().x, drawable.position().y)
 			    .size(drawable.size().height, drawable.size().width);
 			// reroute the edge
@@ -62,5 +62,40 @@ bui.clone = function(degree, select_drawables){
                 }
             }
         }
+        graph.unsuspendRedraw(suspendHandle);
+} 
+
+
+bui.clombine = function(select_drawables){
+        var suspendHandle = graph.suspendRedraw(20000);
+        all_drawables = graph.drawables();
+        // create new node
+        var drawable = all_drawables[select_drawables[0]];
+        var new_node = graph.add(bui[drawable.identifier().substr(4)]) 
+	                    .visible(true)
+			    .label(drawable.label())
+                            .parent(drawable.parent())
+			    //.addClass('cloneMarker')
+			    .position(drawable.position().x, drawable.position().y)
+	                    .size(drawable.size().height, drawable.size().width);
+        // redraw edges
+        for (var edge_key in all_drawables){
+	    edge = all_drawables[edge_key];
+            if (edge.identifier() == 'bui.Edge'){
+                for (var node_key in select_drawables){
+                    if (edge.source().id() == all_drawables[node_key].id()){
+                        all_drawables[edge_key].source(new_node);
+                    }
+                    if (edge.target().id() == all_drawables[node_key].id()){
+                        all_drawables[edge_key].target(new_node);
+                    }
+                }
+            }
+        }
+        // remove select_drawables
+        for (var node_key in select_drawables){
+            all_drawables[node_key].remove();
+        }
+        // redraw ALL THE NODES
         graph.unsuspendRedraw(suspendHandle);
 } 
