@@ -41,7 +41,7 @@
             {drag: this._enableDragging, resize: this._enableResizing, squareResize: this._forceRectangular});
 
         // create eventListener delegate functions
-        interactDragMove = (function (event) {
+        var interactDragMove = (function (event) {
             var position = this.position(),
                 scale = this.graph().scale();
 
@@ -51,7 +51,7 @@
             }
         }).createDelegate(this);
 
-        interactResizeMove = (function (event) {
+        var interactResizeMove = (function (event) {
             var size = this.size(),
                 scale = this.graph().scale();
             
