@@ -268,7 +268,7 @@
         privates.root.addEventListener('interactgesturemove', gestureMove.createDelegate(this));
         privates.root.addEventListener('interactdragstart', dragStart.createDelegate(this));
         privates.root.addEventListener('interactdragmove', dragMove.createDelegate(this));
-        privates.root.addEventListener('interactdragend', dragMove.createDelegate(this));
+        privates.root.addEventListener('interactdragend', dragEnd.createDelegate(this));
         
         // Set as interactable
         interact.set(privates.root, {
