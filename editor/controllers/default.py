@@ -165,11 +165,14 @@ def undo():
 
 
 def redo():
-    response.generic_patterns = ['json']
-    item = session.editor_histroy_redo.pop()
-    session.editor_histroy_undo.append(item)
-    session.editor_autosave = simplejson.dumps(item['graph'])
-    return item
+    if session.editor_histroy_redo:
+        response.generic_patterns = ['json']
+        item = session.editor_histroy_redo.pop()
+        session.editor_histroy_undo.append(item)
+        session.editor_autosave = simplejson.dumps(item['graph'])
+        return item
+    else:
+        return {}
 
 
 def export():
