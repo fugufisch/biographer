@@ -39,7 +39,7 @@
             nodeGroup = privates.nodeGroup;
         
         // Unset interactable element and remove Event Listeners
-        interact.unset(nodeGroup);
+        interact(nodeGroup).unset();
         nodeGroup.removeEventListener('interactdragstart', privates.interact.dragStart);
         nodeGroup.removeEventListener('interactdragmove', privates.interact.dragMove);
         nodeGroup.removeEventListener('interactdragend', privates.interact.dragMove);

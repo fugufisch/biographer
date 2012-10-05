@@ -197,6 +197,10 @@
         }
 
         privates.handles.splice(index, 0, handle);
+        handle.lparent = this;
+        handle.bind(bui.Drawable.ListenerType.remove,
+                this.removePoint.createDelegate(this),
+                listenerIdentifier(this));
 
         redrawLines.call(this);
 
@@ -322,7 +326,7 @@
                     //.bind(bui.Node.ListenerType.absolutePosition, listener, listenerIdentifier(this))
                     .size(12,12)
                     .visible(true);
-                handle.addClass('Outcome');// the stylesheet mus fill the circle black
+                handle.addClass('Outcome');// the stylesheet must fill the circle black
             }else if ((type == 'and')||(type == 'or')||(type == 'not')||(type == 'delay')){
                 //SBO:0000174 ! or
                 //SBO:0000173 ! and
@@ -343,8 +347,30 @@
             
             index = 0;
             privates.handles.splice(index, 0, handle);
+            handle.bind(bui.Drawable.ListenerType.remove,
+                    this.removePoint.createDelegate(this),
+                    listenerIdentifier(this));
             redrawLines.call(this);
             return handle;
+        },
+        
+        /**
+         * Remove the given handle from the edge's list of edge handles if it is
+         * a handle of this edge
+         *
+         * @param {bui.EdgeHandle} the handle to be removed
+         * @return {bui.Edge} Fluent interface
+         */
+        removePoint: function (handle) {
+            var privates = this._privates(identifier),
+                index = privates.handles.indexOf(handle);
+
+            if (index !== -1) {
+                privates.handles.splice(index, 1);
+                handle.lparent = null;
+                redrawLines.call(this);
+            }
+            return this;
         },
         recalculatePoints : function(){
             recalculatePoints.call(this)

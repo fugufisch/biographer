@@ -484,11 +484,10 @@
          * If you omit the parameter a value for whether panning is
          * enabled is returned.
          *
-         * @param {Boolean} [select] True to enable panning or
+         * @param {Boolean} [pan] True to enable panning or
          *   false to disable.
          * @return {bui.Graph|Boolean} Fluent interface when you pass a
-         *   parameter to this function. If not, the current selection state
-         *   will be returned.
+         *   parameter to this function. If not, the graph will be returned.
          */
         enablePanning : function(pan) {
             var privates = this._privates(identifier);
@@ -511,11 +510,10 @@
          * If you omit the parameter a value for whether zooming is
          * enabled is returned.
          *
-         * @param {Boolean} [select] True to enable zooming or
+         * @param {Boolean} [zoom] True to enable zooming or
          *   false to disable.
          * @return {bui.Graph|Boolean} Fluent interface when you pass a
-         *   parameter to this function. If not, the current selection state
-         *   will be returned.
+         *   parameter to this function. If not, the graph will be returned.
          */
         enableZooming : function(zoom) {
             var privates = this._privates(identifier);
@@ -605,6 +603,7 @@
             var dimensions = this._privates(identifier).rootDimensions;
             
             this.translate(0,0);
+            this.scale(1);
 
             var viewportWidth = $(window).width();
             var viewportHeight = $(window).height();
