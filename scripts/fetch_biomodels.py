@@ -40,14 +40,17 @@ def biomodels_info():
     notes_items = []
     for fn in curated_files:
         #print fn[-19:-4]
-        cur_file = tar.extractfile(fn).read()
-        doc = libsbml.readSBMLFromString(cur_file)
-        model = doc.getModel()
-        notes = re.sub('body', 'div', model.getNotes().getChild(0).toXMLString()) 
-        model_id = fn[-19:-4]
-        name = model.getName() 
-        items.append([model_id, '<li bla="%s">%s: %s</li>' % (model_id, model_id, name)])
-        notes_items.append('<div id="%s">%s</div>' % (model_id, notes))
+        try: 
+            cur_file = tar.extractfile(fn).read()
+            doc = libsbml.readSBMLFromString(cur_file)
+            model = doc.getModel()
+            notes = re.sub('body', 'div', model.getNotes().getChild(0).toXMLString()) 
+            model_id = fn[-19:-4]
+            name = model.getName() 
+            items.append([model_id, '<li bla="%s">%s: %s</li>' % (model_id, model_id, name)])
+            notes_items.append('<div id="%s">%s</div>' % (model_id, notes))
+        except:
+            pass
         #print model.getName(), model.getId(), 
     items.sort()
     return "<ul class='biomodels_select'>%s\n</ul><div class='biomodels_notes'>%s</div>" % ("\n".join([x for y,x in items]), ''.join(notes_items))
