@@ -144,7 +144,7 @@
         
         event.preventDefault();
         
-        var wheelDelta = event.wheelDelta || event.detail,
+        var wheelDelta = event.wheelDelta || event.deltaY * -1 || event.detail,
             ds = 0.2 * (wheelDelta > 0? 1: -1),
             newScale = privates.scale * (1 + ds),
             dx,
