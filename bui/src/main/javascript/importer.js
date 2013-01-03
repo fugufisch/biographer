@@ -71,9 +71,13 @@
             }
         }
 
-        if(('clone_marker' in nodeJSON.data)&&(nodeJSON.data.clone_marker == true)){
+        if(('clone_marker' in nodeJSON.data)&&(nodeJSON.data.clone_marker === true)){
             node.clonemarker(true);
         }
+        if((nodeJSON.sbo >= 418) && (nodeJSON.sbo <= 421) ){
+            node.multimer(true);
+        }
+        if(nodeJSON.data.multimer === true) node.multimer(true);
 
         node.size(size.width, size.height)
                 .visible(true);
