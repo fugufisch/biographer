@@ -11,13 +11,19 @@
     var sizeChanged = function(node, width, height) {
         var pathData = [
             'M', 0,0,         // start
-            'H', width-10, //draw _ on top to 7/8
-            'L', width, 10,
+            'H', width-15, //draw _ on top to 7/8
+            'L', width, 15,
             'V', height,
             'H', 0,0,
             'Z'].join(' '); //draw \ to middle left
-
+        var edgeData = [
+            'M', width-15, 0,
+            'L', width, 15,
+            'H', width-15,
+            
+            'Z'].join(' ');
         this._privates(identifier).path.setAttributeNS(null, 'd', pathData);
+        this._privates(identifier).edgePath.setAttributeNS(null, 'd', edgeData);
     };
 
     /**
@@ -48,9 +54,13 @@
         var size = this.size();
         var privates = this._privates(identifier);
         privates.path = document.createElementNS(bui.svgns, 'path');
+        privates.edgePath = document.createElementNS(bui.svgns, 'path');
+        privates.edgePath.style.setProperty('fill', 'black');
+        privates.edgePath.style.setProperty('stroke-width', '0')
         sizeChanged.call(this, this, size.width, size.height);
 		colorChanged.call(this, this, this.color());
         container.appendChild(privates.path);
+        container.appendChild(privates.edgePath);
     };
 
     /**

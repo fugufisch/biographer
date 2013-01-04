@@ -50,10 +50,10 @@ Editor.prototype = {
     //-------------------------------------------
     trigger_delayed_undoPush: function(action, delta){
         clearTimeout(this.delayed);
-        if(delta == undefined) delta=2500
+        if(delta === undefined) delta=2500;
         var this_editor = this;
         this.delayed = setTimeout(function() {
-            if(this_editor.active==false){
+            if(this_editor.active === false){
                 this_editor.active = true;
                 this_editor.undoPush(action);
                 this_editor.active = false;
@@ -64,11 +64,11 @@ Editor.prototype = {
     // replace graph with new graph defined by json object
     redrawGraph: function(graph_json){
        // clear graph
+        var all_drawables = this.graph.drawables();
+        var key;
         if (this.graph){
-          var all_drawables = this.graph.drawables();
-          var key;
           for (key in all_drawables) {
-              all_drawables[key].remove(); 
+              all_drawables[key].remove();
           }
         } else {
           this.graph = new bui.Graph($('#canvas')[0]);
@@ -212,9 +212,34 @@ Editor.prototype = {
                 this.selected_nodes[i].selected = false;
                 this.selected_nodes[i].removeClass('selected');
             }
-            this.selected_nodes = [];    
+            this.selected_nodes = [];
+            this.rightMenu();
             $('.flash').html('<h2>Please click on two nodes to create an edge<h2>').fadeIn().delay(5000).fadeOut();
         }
+    },
+    //-------------------------------------------//
+    createEdge: function(){
+        //draw edge now
+        new_edge = this.graph.add(bui[this.cur_mode])
+                .source(this.selected_nodes[0])
+                .target(this.selected_nodes[1])
+                .visible(true);
+        if(this.cur_mode=='Spline') {
+          var dx=this.selected_nodes[1].position().x-this.selected_nodes[0].position().x;
+          var dy=this.selected_nodes[1].position().y-this.selected_nodes[0].position().y;
+          new_edge.setSplineHandlePositions([dx/5,dy/5,-dx/5,-dy/5]);
+        }
+        for (var i = this.selected_nodes.length - 1; i >= 0; i--) {
+            this.selected_nodes[i].selected = false;
+            this.selected_nodes[i].removeClass('selected');
+        }
+        this.selected_nodes = [];
+        //set click listener on new edge
+        new_edge.bind(bui.AbstractLine.ListenerType.click, editor.drawableSelect());
+        new_edge.addClass('selected');
+        console.log('edge selected '+new_edge.id());
+        this.rightMenue_show(true);
+        this.selected_edges = [new_edge];
     },
     //-------------------------------------------//
     // drops a ui-helper node from node type menu and generates the corresponding graph node
@@ -279,10 +304,10 @@ Editor.prototype = {
         this.selected_nodes = [drawable];
         drawable.selected = true;
         drawable.addClass('selected');
-        this.right_menue_show(true);
+        this.rightMenue_show(true);
         this.setMode('cursor');
         this.drawableSelect()(drawable, true);
-        this.trigger_delayed_undoPush('created node', 4000)
+        this.trigger_delayed_undoPush('created node', 4000);
     },
     //-------------------------------------------
     // general handler for clicks on nodes
@@ -292,7 +317,7 @@ Editor.prototype = {
         return function(drawable, select_status){
             if(drawable.drawableType()=='node'){
                 if ((this_editor.cur_mode == 'cursor')||(this_editor.cur_mode == 'Edge')||(this_editor.cur_mode == 'Spline')){
-                    if ((this_editor.shifted == true)||(this_editor.cur_mode == 'Edge')||(this_editor.cur_mode == 'Spline')){
+                    if ((this_editor.shifted === true)||(this_editor.cur_mode == 'Edge')||(this_editor.cur_mode == 'Spline')){
                         //shif key is down
                         //add all drawable to selection, if already selected remove selection
                         if (drawable.selected === true){
@@ -315,47 +340,34 @@ Editor.prototype = {
                                 this_editor.selected_nodes[i].selected = false;
                                 this_editor.selected_nodes[i].removeClass('selected');
                         }
-                        this_editor.selected_nodes = [drawable]
+                        this_editor.selected_nodes = [drawable];
                         drawable.addClass('selected');
                         drawable.selected = true;
                     }
                 }
                 //-------------------------------------
-                this_editor.node_attributes_show();
                 //-------------------------------------
                 if ((this_editor.cur_mode == 'Edge')||(this_editor.cur_mode == 'Spline')){
                     if (this_editor.selected_nodes.length>=2){
-                        //draw edge now
-                        new_edge = this_editor.graph.add(bui[this_editor.cur_mode])
-                                .source(this_editor.selected_nodes[0])
-                                .target(this_editor.selected_nodes[1])
-                                .visible(true);
-                        if(this_editor.cur_mode=='Spline') {
-                          var dx=this_editor.selected_nodes[1].position().x-this_editor.selected_nodes[0].position().x;
-                          var dy=this_editor.selected_nodes[1].position().y-this_editor.selected_nodes[0].position().y;
-                          new_edge.setSplineHandlePositions([dx/5,dy/5,-dx/5,-dy/5]);
-                        }
-                        for (var i = this_editor.selected_nodes.length - 1; i >= 0; i--) {
-                            this_editor.selected_nodes[i].selected = false;
-                            this_editor.selected_nodes[i].removeClass('selected');
-                        }
-                        this_editor.selected_nodes = [];
-                        //set click listener on new edge
-                        new_edge.bind(bui.AbstractLine.ListenerType.click, editor.drawableSelect());
-
-                        this_editor.edgeModal(new_edge, 'created '+this_editor.cur_mode);
-                        this_editor.selected_nodes = [];
+                        this_editor.createEdge();
                     }
                 } else if (this_editor.cur_mode == 'focus'){//TODO focus is not part of the editor anymore since I do not consider this as a useful feature
                     if(drawable.drawableType()=='node') bui.util.alignCanvas(this_editor.graph, drawable.id());
                 }
+                this_editor.rightMenu();
             }
         };
     },
-    node_attributes_show: function(){
+    rightMenu: function(){
         var this_editor = this;
-        if(this.selected_nodes.length==1){
-            $('.node_attributes').show();
+        if((this.cur_mode == 'Edge')||(this.cur_mode == 'Spline')){
+            $('.rm_node').hide();
+            $('.rm_edge').show();
+            $('.rm .message').hide();
+        }
+        else if(this.selected_nodes.length==1){
+            $('.rm_node').show();
+            $('.rm_edge').hide();
             $('.rm .message').hide();
             var drawable = this.selected_nodes[0];
             console.log('selcted a '+drawable.identifier());
@@ -363,7 +375,7 @@ Editor.prototype = {
             $('#node_id').html(drawable.id());
             $('#node_type').html(drawable.identifier());
             //===========================================
-            if (drawable.parent() !== undefined){
+            if (drawable.parent().label !== undefined){
                 $('.parent_box').show();
                 var parent = drawable.parent();
                 $('#node_parent').html(parent.label()+' ('+parent.id()+') - '+parent.identifier() );
@@ -388,13 +400,13 @@ Editor.prototype = {
             //===========================================
             if(drawable.identifier() in {'Macromolecule':1, 'UnspecifiedEntity': 1}){
                 $('.uoi_box, .state_variable_box').show();
-                var randomnumber=Math.floor(Math.random()*1501)
+                var randomnumber = Math.floor(Math.random()*1501);
                 $('#sv_group').html('<input type="text" placeholder="P@'+randomnumber+'" class="state_variable" /> ');
                 $('#uoi_group').html('<input type="text" placeholder="mt:prot" class="unit_of_information" />');
                 var dc = drawable.children();
                 var ci = 0, cj = 0;
                 for (var i =0; i<dc.length; ++i){
-                    var randomnumber=Math.floor(Math.random()*1501)
+                    randomnumber = Math.floor(Math.random()*1501);
                     if (dc[i].identifier() in {'StateVariable':1,'StateVariableER':1} ){
                         if (ci<1) $('.state_variable').val(dc[i].label());
                         else $('#sv_group').append(' <br/><input type="text" class="state_variable" placeholder="P@'+randomnumber+'" value="'+dc[i].label()+'"/> ');
@@ -408,13 +420,12 @@ Editor.prototype = {
                 }
                 $('.state_variable').unbind('change');
                 $('.state_variable').change(function(){
-                    this_editor.node_attributes_changed();
+                    this_editor.editNode();
                 });
                 $('.unit_of_information').unbind('change');
                 $('.unit_of_information').change(function(){
-                    this_editor.node_attributes_changed();
+                    this_editor.editNode();
                 });
-                
             }else{
                 $('.uoi_box, .state_variable_box').hide();
             }
@@ -447,7 +458,8 @@ Editor.prototype = {
         //}else if (this.selected_nodes.length>1){
             //FIXME show things that can be change for several nodes
         }else{
-            $('.node_attributes').hide();
+            $('.rm_edge').hide();
+            $('.rm_node').hide();
             $('.rm .message').show();
             /*
             $('.clonemarker_box').hide();
@@ -456,7 +468,41 @@ Editor.prototype = {
             */
         }
     },
-    node_attributes_changed: function(){
+    editEdge: function(){
+        if (this.selected_edges.length == 1){
+            var drawable = this.selected_edges[0];
+            var cur_marker = $('.selected_marker').attr('id');
+            if(this.graph.language() == "PD"){
+                if (cur_marker == 'production') {
+                    if (!(drawable.source() instanceof bui.Process)){
+                      if (drawable.target() instanceof bui.Process){
+                        var h=drawable.source();  // swap source / target
+                        drawable.source(drawable.target());
+                        drawable.target(h);
+                      } else {
+                        jQuery('.flash').html("Error: production edge needs connect process to molecule").fadeIn().delay(1500).fadeOut();
+                        return;
+                      }
+                    }
+                }else if(cur_marker in {"control":1,'stimulation':1,'catalysis':1,'inhibition':1,'necessaryStimulation':1}){
+                    if (!(drawable.target() instanceof bui.Process)){
+                      if (drawable.source() instanceof bui.Process){
+                        var h=drawable.source();  // swap source / target
+                        drawable.source(drawable.target());
+                        drawable.target(h);
+                      } else {
+                        jQuery('.flash').html("Error: edge of this type needs connect molecule process").fadeIn().delay(1500).fadeOut();
+                        return;
+                      }
+                    }
+                }
+            }
+            console.log('edit marker is '+cur_marker);
+            //drawable.json().sbo=bui.util.getSBOForMarkerId(sel.marker);
+            drawable.marker(cur_marker);
+        }
+    },
+    editNode: function(){
         var this_editor = this;
         if (this_editor.selected_nodes.length == 1){
             var drawable = this_editor.selected_nodes[0];
@@ -474,7 +520,7 @@ Editor.prototype = {
                 }
             }
             $('.state_variable').each(function(){
-                if ($(this).val() != '') {
+                if ($(this).val() !== '') {
                     added_flag = true;
                     this_editor.graph.add(bui.StateVariable)
                     .parent(drawable)
@@ -485,7 +531,7 @@ Editor.prototype = {
             });
             //-----------------
             $('.unit_of_information').each(function(){
-                if($(this).val() != '') {
+                if($(this).val() !== '') {
                     added_flag = true;
                     this_editor.graph.add(bui.UnitOfInformation)
                     .parent(drawable)
@@ -494,7 +540,7 @@ Editor.prototype = {
                     .visible(true);
                 }
             });
-            if (added_flag) drawable.positionAuxiliaryUnits(); // organise them neatly 
+            if (added_flag) drawable.positionAuxiliaryUnits(); // organise them neatly
             //-----------------
             if (drawable.multimer !== undefined){drawable.multimer($('#node_is_multimer').is(':checked')); }
             if (drawable.clonemarker !== undefined) drawable.clonemarker($('#node_is_clone').is(':checked'));
@@ -508,60 +554,15 @@ Editor.prototype = {
     },
     edgeModal: function(drawable, action) {
         var sel=$('#marker_select_box')[0]; // the select <div>
-        $('#action').html(action);
         $('.current_id').attr('id', drawable.id());
         var type=drawable.marker(); // type as specified by sbo in edge
-        $('.marker_select').hide();
-        if (type){
-          $('#' + type).show(); // show the <div> correspnding to the current edge marker
-        } else {
-          $('#marker_none').show();
-        }
-        sel.opened=false; // we just introduce some local variables in the select div
         sel.marker=type;
         var this_editor = this;
         this_editor.modal = $("#edge_modal_input").modal({
             overlayClose:true,
             opacity:20,
             onClose: function(){
-                if(sel.marker !== 'marker_none'){
-                    switch (sel.marker) {
-                      case "production" :
-                        if (!(drawable.source() instanceof bui.Process)){
-                          if (drawable.target() instanceof bui.Process){
-                            var h=drawable.source();  // swap source / target
-                            drawable.source(drawable.target());
-                            drawable.target(h);
-                          } else {
-                            jQuery('.flash').html("Error: production edge needs connect process to molecule").fadeIn();
-                            return;
-                          }
-                        }
-                        break;
-                      case "inhibition" :
-                      case "catalysis" :
-                      case "stimulation" :
-                      case "necessaryStimulation" :
-                      case "absoluteStimulation" :
-                      case "absoluteInhibition" :
-                      case "control" :
-                        if (!(drawable.target() instanceof bui.Process)){
-                          if (drawable.source() instanceof bui.Process){
-                            var h=drawable.source();  // swap source / target
-                            drawable.source(drawable.target());
-                            drawable.target(h);
-                          } else {
-                            jQuery('.flash').html("Error: edge of this type needs connect molecule process").fadeIn();
-                            return;
-                          }
-                        }
-                        break;
-                      case "assignment" :
-                    }
-                      
-                    //drawable.json().sbo=bui.util.getSBOForMarkerId(sel.marker);
-                    drawable.marker(sel.marker);
-                }
+                
                 this_editor.save($('#action').html());
                 $.modal.close();
             }
@@ -682,7 +683,7 @@ Editor.prototype = {
         if(this.box === undefined) {
             this.box = document.body.appendChild(document.createElement('div'));
 
-            var canvas = document.getElementById('canvas')
+            var canvas = document.getElementById('canvas');
             interact.set(canvas, {
                 drag:true,
                 checkOnHover: false
@@ -722,7 +723,7 @@ Editor.prototype = {
             function (graph, event) {
                 this_editor.selected_nodes = [];
                 this_editor.selection_borders = {};
-                if ((this_editor.cur_mode == 'cursor') || (this_editor.cur_mode == undefined)){
+                if ((this_editor.cur_mode == 'cursor') || (this_editor.cur_mode === undefined)){
                     $('box').show();
                     //box.style.display = 'block';
                     box.style.display = '';
@@ -745,7 +746,7 @@ Editor.prototype = {
         this.graph.bind(
             bui.Graph.ListenerType.dragMove,
             function (graph, event) {
-                if ((this_editor.cur_mode == 'cursor') || (this_editor.cur_mode == undefined)){
+                if ((this_editor.cur_mode == 'cursor') || (this_editor.cur_mode === undefined)){
                     if (event.detail.x0>event.detail.pageX){
                         box.style.left = event.detail.pageX;
                         box.style.width = Math.max(event.detail.x0 - event.detail.pageX) + 'px';
@@ -802,7 +803,7 @@ Editor.prototype = {
                             }
                         }
                     }
-                    this_editor.node_attributes_show();
+                    this_editor.rightMenu();
                 }else if (this_editor.cur_mode == 'move'){
                     var move = {x:event.detail.pageX - this_editor.selection_borders.left, y: event.detail.pageY - this_editor.selection_borders.top};
                     for (var i = this_editor.selected_nodes.length - 1; i >= 0; i--){
@@ -839,7 +840,7 @@ Editor.prototype = {
                 $(this).show();
             }
         });
-        $('.marker_select_box .marker_select').each(function(){
+        $('.marker_select').each(function(){
            if (! $(this).hasClass(language_current)){
                 $(this).hide();
             } else {
@@ -857,7 +858,7 @@ Editor.prototype = {
     /*
     * if not iput toggle
     */
-    right_menue_show: function(show){
+    rightMenue_show: function(show){
         var lm = $('.rm');
         var tw = -1*lm.outerWidth()+parseInt($('.rm_peek').css('width'),10);
         var cw = parseInt(lm.css('right'),10);
@@ -896,7 +897,7 @@ Editor.prototype = {
         //=========================
         //init menues
         this.showUndoRedo();
-        this.node_attributes_show();
+        this.rightMenu();
         //=========================
         $('#hide_handles').click(function(){
             if (this_editor.edge_handles_visible === undefined){
@@ -1109,21 +1110,21 @@ Editor.prototype = {
         });
         //=========================
         $('#node_label').keyup(function(){
-            this_editor.node_attributes_changed();
+            this_editor.editNode();
         });
         //=========================
         $('.unit_of_information').change(function(){
-            this_editor.node_attributes_changed();
+            this_editor.editNode();
         });
         $('#node_is_multimer, #node_is_clone').click(function(){
-            this_editor.node_attributes_changed();
+            this_editor.editNode();
         });
         //=========================
         $('#add_unit_of_information').click(function(){
             $('#uoi_group').append(' <br/><input type="text" placeholder="mt:prot" class="unit_of_information" /> ');
             $('.unit_of_information').unbind('change');
             $('.unit_of_information').change(function(){
-                this_editor.node_attributes_changed();
+                this_editor.editNode();
             });
         });
         //=========================
@@ -1131,7 +1132,7 @@ Editor.prototype = {
             $('#sv_group').append(' <br/><input type="text" placeholder="P@207" class="state_variable" /> ');
             $('.state_variable').unbind('change');
             $('.state_variable').change(function(){
-                this_editor.node_attributes_changed();
+                this_editor.editNode();
             });
         });
         //=========================
@@ -1148,7 +1149,7 @@ Editor.prototype = {
             onChange: function (hsb, hex, rgb) {
                 this_editor.color_bg = '#'+hex;
                 $('.color_bg div').css('backgroundColor', '#' + hex);
-                this_editor.node_attributes_changed();
+                this_editor.editNode();
             }
         });
         $('.color_bd').ColorPicker({
@@ -1164,7 +1165,7 @@ Editor.prototype = {
             onChange: function (hsb, hex, rgb) {
                 this_editor.color_bd = '#'+hex;
                 $('.color_bd div').css('backgroundColor', '#' + hex);
-                this_editor.node_attributes_changed();
+                this_editor.editNode();
             }
         });
         $('.color_tx').ColorPicker({
@@ -1180,7 +1181,7 @@ Editor.prototype = {
             onChange: function (hsb, hex, rgb) {
                 this_editor.color_tx = '#'+hex;
                 $('.color_tx div').css('backgroundColor', '#' + hex);
-                this_editor.node_attributes_changed();
+                this_editor.editNode();
             }
         });
         //=========================
@@ -1347,21 +1348,6 @@ Editor.prototype = {
             this_editor.setMode(mode);
         });
         //=========================
-        
-        $('.marker_select').click(function(){
-          if (this.parentNode.opened){ // implement dropbox toggle
-            //$('#marker_type').html($(this).attr('id'));
-            this.parentNode.marker=$(this).attr('id'); // save current marker type in parent div (select div)
-            $('.marker_select').hide();
-            $(this).show();
-            this.parentNode.opened=false;
-          } else {
-            $('.marker_select').show();
-            this.parentNode.opened=true;
-          }
-        });
-        
-        //=========================
         $('#save_to_session').click(function(){
             this_editor.save('manual');
         });
@@ -1387,6 +1373,12 @@ Editor.prototype = {
             if($('#export_format_select').val() != '... choose'){
                 $('#export_form').html('<input type="hidden" name="format" value=\''+$('#export_format_select').val()+'\' /><input type="hidden" name="svg_data" value=\''+$('#canvas svg').parent().html()+'\' />').submit();
         }
+        });
+        //=========================
+        $('.marker_select').click(function(){
+            $('.selected_marker').removeClass('selected_marker');
+            $(this).addClass('selected_marker');
+            this_editor.editEdge();
         });
         //=========================
         $('.node').click(function(event){
@@ -1500,7 +1492,7 @@ Editor.prototype = {
         $('#del').click(function(){this_editor.delete_selected_nodes();});
         //-------------------------------------------------
         //slide toggle right menu
-        $('.rm_peek').click(function(){this_editor.right_menue_show(); });
+        $('.rm_peek').click(function(){this_editor.rightMenue_show(); });
         
     }
 };

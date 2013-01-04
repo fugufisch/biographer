@@ -159,7 +159,12 @@ g.Fuchsia > path,g.Fuchsia > circle,g.Fuchsia > rect {
 g.Purple > path,g.Purple > circle,g.Purple > rect {
 	fill: #800080;
 }
-g.selected > path,g.selected > circle,g.selected > rect, g.selected >ellipse {
+g.selected > path,g.selected > circle,g.selected > rect, g.selected >ellipse{
     stroke: blue;
     stroke-dasharray: 5,5;
+}
+line.selected {
+    stroke: blue;
+    stroke-dasharray: 5,5;
+    stroke-width: 4px;
 }

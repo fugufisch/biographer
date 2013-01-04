@@ -13,7 +13,7 @@ pre {
     position: fixed;    
     padding: 10px;
     top: 12%;
-    right: 10%;
+    right: 300px;
     min-width: 280px;
     opacity: 0.85;
     margin: 0 0 10px 10px;    
@@ -218,10 +218,9 @@ td {
 }
 /**********************************/
 #marker_select_box {
-	width: 270px;
+	width: 220px;
 	position:relative;
     float:right;
-    border: 2px solid #eee;
     border-radius: 4px;
     margin-bottom: 4px;
 	background-color: white;
@@ -230,8 +229,9 @@ td {
     display: none;
     cursor: pointer;
 	height: 35px;
-    within: 200px;
     position: relative;
+    color: black;
+    padding: 3px;
 }
 .marker_select:hover {
 	background-color: #eee;
@@ -243,6 +243,9 @@ td {
     right: 0;
     top: 0;
 }
+.selected_marker{
+    background-color: #aaa !important;
+}
 #production div{background: url('../img/biographer.sprites.png') -365px -0px; }
 #substrate div{background: url('../img/biographer.sprites.png') -365px -35px; }
 #control div{background: url('../img/biographer.sprites.png') -365px -70px; }
@@ -250,8 +253,8 @@ td {
 #inhibition div{background: url('../img/biographer.sprites.png') -365px -140px; }
 #absoluteInhibition div{background: url('../img/biographer.sprites.png') -365px -175px; }
 #stimulation div{background: url('../img/biographer.sprites.png') -365px -210px; }
-#absoluteStimulation div{background: url('../img/biographer.sprites.png') -365px -245px; }
-#necessaryStimulation div{background: url('../img/biographer.sprites.png') -365px -280px; }
+#necessaryStimulation div{background: url('../img/biographer.sprites.png') -365px -245px; }
+#absoluteStimulation div{background: url('../img/biographer.sprites.png') -365px -280px; }
 #assignment div{background: url('../img/biographer.sprites.png') -365px -315px; }
 #marker_none div {background: url('../img/biographer.sprites.png') -365px -350px; }
 /**********************************/
@@ -438,6 +441,7 @@ h3.section.down {
 #Dissociation {background: url('../img/biographer.sprites.png') -70px -420px; }
 #RectangularNode {background: url('../img/biographer.sprites.png') -70px -455px; }
 #Tag {background: url('../img/biographer.sprites.png') -70px -490px; }
+#Annotation {background: url('../img/biographer.sprites.png') -70px -525px; }
 /**********************************/
 .zoom_menu {
     position: fixed;

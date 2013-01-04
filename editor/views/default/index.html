@@ -113,6 +113,7 @@
 				<li id="LogicalOperator" class="tool node PD ER"> <div>LogicalOperator (click me)</div> </li>
 				<li id="Association" class="tool node PD"> <div>Association (click me)</div> </li>
 				<li id="Dissociation" class="tool node PD"> <div>Dissociation (click me)</div> </li>
+				<li id="Annotation" class="tool node PD ER AF"> <div>Annotation (click me)</div> </li>
 			</ul>
 		</td>
 		<td>
@@ -231,36 +232,33 @@
 <!-- --------------------------------------------------------------------------------- -->
 <!-- --------------------------------------------------------------------------------- -->
 <div id="edge_modal_input" class="modal_input">
-	<table>
-		<tr>
-			<th>End Marker</th>
-			<td>
-			  <div width="270px"> <!-- this is needed as position absolute in td does not work-->
-			     &nbsp;
-          <div id="marker_select_box">
-            <div class="marker_select" id="marker_none">  ... click to open <div></div> </div>
-            <div class="marker_select PD" id="substrate">  consumption <div></div> </div>
-            <div class="marker_select PD" id="production"> production <div></div> </div>
-            <div class="marker_select PD ER" id="control"> control <div></div> </div>
-            <div class="marker_select PD ER AF" id="inhibition"> inhibition <div></div> </div>
-            <div class="marker_select PD" id="catalysis"> catalysis <div></div> </div>
-            <div class="marker_select PD ER AF" id="stimulation"> stimulation <div></div> </div>
-            <div class="marker_select PD ER AF" id="assignment"> assignment <div></div> </div>
-            <div class="marker_select PD ER AF" id="necessaryStimulation"> necessaryStimulation <div></div> </div>
-            <div class="marker_select PD ER AF" id="absoluteStimulation"> absoluteStimulation <div></div> </div>
-            <div class="marker_select ER AF" id="absoluteInhibition"> absoluteInhibition <div></div> </div>
-        </div>
-			</td>
-		</tr>
-	</table>
 	<button class='sc_but close_modal'>close</button> or press <b>ESC</b>
-	</div>
+</div>
 </div>
 <div class="rm">
 	<div class="rm_peek"><div></div></div>
 	<div class="rm_body">
 		<div class="message" style="display:none">Currently you can only change the attributes of one node at once.</div>
-		<table class='node_attributes'>
+		<table class="rm_edge">
+			<tr>
+				<th>End Marker</th>
+				<td>
+					<div id="marker_select_box">
+						<div class="marker_select PD ER AF" id="substrate">  consumption/logic <div></div> </div>
+						<div class="marker_select PD" id="production"> production <div></div> </div>
+						<div class="marker_select ER" id="assignment"> assignment/interaction <div></div> </div>
+						<div class="marker_select PD ER AF" id="control"> control <div></div> </div>
+						<div class="marker_select PD ER AF" id="stimulation"> stimulation <div></div> </div>
+						<div class="marker_select PD" id="catalysis"> catalysis <div></div> </div>
+						<div class="marker_select PD ER AF" id="inhibition"> inhibition <div></div> </div>
+						<div class="marker_select PD ER AF" id="necessaryStimulation"> necessary stimulation <div></div> </div>
+						<div class="marker_select ER" id="absoluteInhibition"> absolute inhibition <div></div> </div>
+						<div class="marker_select ER" id="absoluteStimulation"> absolute stimulation <div></div> </div>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<table class='rm_node'>
 			<tr>
 				<th>Type</th>
 				<td id="node_type"></td>
@@ -329,6 +327,7 @@
 				</td>
 			</tr>
 		</table>
+
 	</div>
 </div>
 <!-- --------------------------------------------------------------------------------- -->
