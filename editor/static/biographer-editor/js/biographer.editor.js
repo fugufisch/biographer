@@ -87,7 +87,8 @@ Editor.prototype = {
         for (key in all_drawables) {
           if (all_drawables.hasOwnProperty(key)){
             if(all_drawables[key].drawableType()=='node'){
-                all_drawables[key].bind(bui.Node.ListenerType.click, editor.drawableSelect());
+                var drawable = all_drawables[key];
+                this.bindDrawable(drawable)
             }else{
                 all_drawables[key].bind(bui.AbstractLine.ListenerType.click, editor.drawableSelect());
             }
@@ -109,23 +110,23 @@ Editor.prototype = {
             for (var i = newArray.length - 1; i >= 0; i--) {
                 html_history += newArray[i].action+'<br/>';
             }
-            $('#undo>div').html(html_history);
+            $('#undo .pp').html(html_history);
         }else{
             $('#undo').addClass('disabled');
-            $('#undo>div').html('undo');
+            $('#undo .pp').html('undo');
         }
         if(editor_config.history_redo.length > 0){
             $('#redo').removeClass('disabled');
-            $('#redo>div').html(editor_config.history_redo.join('<br/>'));
+            $('#redo .pp').html(editor_config.history_redo.join('<br/>'));
             newArray = editor_config.history_redo.slice();
             html_history = '';
             for (var i = newArray.length - 1; i >= 0; i--) {
                 html_history += newArray[i].action+'<br/>';
             }
-            $('#redo>div').html(html_history);
+            $('#redo .pp').html(html_history);
         }else{
             $('#redo').addClass('disabled');
-            $('#redo>div').html('redo');
+            $('#redo .pp').html('redo');
         }
     },
     //-------------------------------------------
@@ -225,13 +226,11 @@ Editor.prototype = {
         }
     },
     showColorCombo: function(){
-        console.log('in showColorCombo');
         for(var i=0;i<this.colorcombos.length;++i){
             var combo = [];
             for (var j=0;j<this.colorcombos[i].length;++j){
                 combo.push('<div class="combo_color" style="background-color:#'+this.colorcombos[i][j]+'"></div>');
             }
-                console.log('SHOW COLORCOMBOS '+combo.join(''));
             $('.colorcombos').append('<div class="select_combo" id="'+i+'">combo '+i+'<br>'+(combo.join(' '))+'</div>');
         }
     },
@@ -248,6 +247,7 @@ Editor.prototype = {
             else if(drwbl.identifier() == 'UnspecifiedEntity') drwbl.color({background: this.colorcombos[index][2]});
             else if(drwbl.identifier() == 'Complex') drwbl.color({background: this.colorcombos[index][3]});
         }
+        this.undoPush('applied color combo '+index);
     },
     //-------------------------------------------//
     createEdge: function(){
@@ -314,12 +314,44 @@ Editor.prototype = {
         }
         */
         //-----------------
+        this.bindDrawable(drawable);
+
+        for (var i = this.selected_nodes.length - 1; i >= 0; i--) {
+            this.selected_nodes[i].selected = false;
+            this.selected_nodes[i].removeClass('selected');
+        }
+        this.select_all(false);
+        this.select(drawable);
+        this.rightMenue_show(true);
+        this.setMode('cursor');
+        this.drawableSelect()(drawable, true);
+        $('#node_label').focus();
+        this.trigger_delayed_undoPush('created node', 4000);
+    },
+    //-------------------------------------------//
+    // multiple drag move function
+    bindDrawable: function(drawable){
         //set click listener on new node
         drawable.bind(bui.Node.ListenerType.click, this.drawableSelect(), 'node_select');
-
         // Set drag function to move all other selected nodes
+        drawable.bind(bui.Node.ListenerType.dragMove,this.multiMove(),'multiple drag');
+        //FIXME bind drag stop to save
+        drawable.bind(bui.Node.ListenerType.dragEnd,this.saveOnDragEnd(),'node drag ends');
+        
+    },
+    //-------------------------------------------//
+    // drag ended now save to
+    saveOnDragEnd: function(){
         var this_editor = this;
-        drawable.bind(bui.Node.ListenerType.dragMove, function (node, event) {
+        return function(){
+            this_editor.undoPush('moved node(s)');
+        };
+    },
+    //-------------------------------------------//
+    // multiple drag move function
+    multiMove: function(){
+        var this_editor = this;
+        return function (node, event) {
             if (this.cur_mode === 'cursor' || this.cur_mode === undefined) {
                 for (var i = 0; i < this_editor.selected_nodes.length; i++) {
                     var movement = this_editor.graph.toGraphCoords(event.detail.dx, event.detail.dy);
@@ -330,32 +362,7 @@ Editor.prototype = {
                     }
                 }
             }
-        },
-        'multiple drag');
-
-        //set droppable listener on new node
-        /*
-        FIXME what is this can this be removed?
-        $('#placeholder_'+drawable.id()).droppable({
-            hoverClass: 'drop_hover',
-            over : function(){$('#canvas').droppable("disable");},
-            out : function(){$('#canvas').droppable("enable");},
-            drop: function(event, ui){dropFkt(event, ui, this);}
-        });
-        */
-        //make all drawables placeholders invisible
-        //this.placeholdersVisible(false);
-        //$('#canvas').droppable("enable");
-        for (var i = this.selected_nodes.length - 1; i >= 0; i--) {
-            this.selected_nodes[i].selected = false;
-            this.selected_nodes[i].removeClass('selected');
-        }
-        this.select_all(false);
-        this.select(drawable);
-        this.rightMenue_show(true);
-        this.setMode('cursor');
-        this.drawableSelect()(drawable, true);
-        this.trigger_delayed_undoPush('created node', 4000);
+        };
     },
     //-------------------------------------------
     // general handler for clicks on nodes
@@ -553,6 +560,7 @@ Editor.prototype = {
 
                 }
             }
+            var added_flag = false;
             $('.state_variable').each(function(){
                 if ($(this).val() !== '') {
                     added_flag = true;
@@ -897,7 +905,14 @@ Editor.prototype = {
         var lm = $('.rm');
         var tw = -1*lm.outerWidth()+parseInt($('.rm_peek').css('width'),10);
         var cw = parseInt(lm.css('right'),10);
-        $('.rm_peek div').attr('class', cw == tw ? 'out' : 'in');
+        if(cw == tw){
+            $('.rm_peek .bg').addClass('out');
+            $('.rm_peek .bg').removeClass('in');
+        }else{
+            $('.rm_peek .bg').removeClass('out');
+            $('.rm_peek .bg').addClass('in');            
+        }
+        //$('.rm_peek .bg').attr('class', cw == tw ? 'out' : 'in');
         if (show == undefined) lm.animate({right: cw == tw ? 0 : tw });
         else if (show == true) lm.animate({right:  0 });
         else lm.animate({right:  tw });
@@ -1055,7 +1070,7 @@ Editor.prototype = {
             if(this_editor.selected_nodes.length === 0) new_nodes = bui.util.clone(this_editor.graph, 5);
             else new_nodes = bui.util.clone(this_editor.graph, 2, this_editor.selected_nodes);
             for (var i = new_nodes.length - 1; i >= 0; i--) {
-                new_nodes[i].bind(bui.Node.ListenerType.click, this_editor.drawableSelect());
+                this_editor.bindDrawable(new_nodes[i]);
             }
             $('#clone').html(orig_html);
             if (new_nodes.length>0) this_editor.undoPush('Cloned nodes, got '+new_nodes.length+' new nodes');
@@ -1506,24 +1521,82 @@ Editor.prototype = {
             $('.language_selection').fadeToggle();
         });
         //-------------------------------------------------
-        //remove selected nodes if del was pressed on the keyboard
+        //-------------------------------------------------
+        //-------------------------------------------------
+        // keyboard shourtcuts
+        //-------------------------------------------------
+        //-------------------------------------------------
         $(document).keyup(function(event) {
+             if (event.keyCode == 16) {
+                this_editor.shifted = false;
+            }
+            if (event.keyCode == 17) {
+                $('.keyboard').attr('style','');
+            }
+        });
+        $(document).keydown(function(event){
+            //==================================
+            //del  | delete selected nodes
+            //==================================
             if (event.keyCode == 46) { // us: del; german: entf
                 this_editor.delete_selected_nodes();
             }
-            //FIXME this does not work to detect if the shifkey is on!
-            this_editor.shifted = event.shiftKey;
-        });
-        $(document).keydown(function(event){
-            //ctrl + a  select all
-            if ((event.ctrlKey || event.metaKey) && event.keyCode == 65) {
-                this_editor.select_all(true);
-                event.preventDefault();
+            //==================================
+            //f4 | toggle side menu
+            //==================================
+            if (event.keyCode == 115){   
+                this_editor.rightMenue_show();
+            }
+            console.log('keycode '+event.keyCode);
+            //==================================
+            if (event.ctrlKey || event.metaKey) {
+                //==================================
+                //ctrl + a  | select all
+                //==================================
+                if (event.keyCode == 65){   
+                    this_editor.select_all(true);
+                    event.preventDefault();
+                }
+                //==================================
+                //ctrl + z | undo
+                if (event.keyCode == 90){this_editor.undo(); }
+                //==================================
+                //ctrl + shift + z OR ctrl + y | redo
+                if ((event.keyCode == 90 && event.shiftKey)||event.keyCode == 89 ){this_editor.redo(); }
+                //==================================
+                //crtl + i | import
+                if (event.keyCode == 73){this_editor.modal = $("#import_file_modal_input").modal({overlayClose:true, opacity:20 }); }
+                //ctrl + e | export
+                if (event.keyCode == 69){this_editor.modal = $("#export_file_modal_input").modal({overlayClose:true, opacity:20 }); }
+                //==================================
+                //ctrl + 1 | cursor tool
+                if (event.keyCode == 49){this_editor.setMode('cursor'); }
+                //ctrl + 2 | cursor tool
+                if (event.keyCode == 50){this_editor.setMode('move'); }
+                //ctrl + 3 | cursor tool
+                if (event.keyCode == 51){this_editor.setMode('Edge'); }
+                //ctrl + 4 | cursor tool
+                if (event.keyCode == 52){this_editor.setMode('Spline'); }
                 return false;
             }
-            //FIXME this does not work to detect if the shifkey is on!
-            this_editor.shifted = event.shiftKey;
+            if (event.keyCode == 16) {
+                //FIXME this does not work to detect if the shifkey is on!
+                this_editor.shifted = true;
+            }
+            if (event.keyCode == 17) {
+                if(10>Math.floor(Math.random()*100)){
+                    $('.keyboard').each(function() {
+                        $(this).show().delay(Math.floor(Math.random()*1600)).fadeOut('slow');
+                    });
+                }else{
+                    $('.keyboard').fadeIn('slow').delay(1000).fadeOut('slow');
+                }
+            }
+
         });
+        //-------------------------------------------------
+        //-------------------------------------------------
+        
         //-------------------------------------------------
         document.body.onmousewheel = function (event) {
             this_editor.graph.fire(bui.Graph.ListenerType.wheel, [this_editor.graph, event]);

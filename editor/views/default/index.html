@@ -4,8 +4,8 @@
 		<td></td>
 		<td>
 <ul class="zoom_menu">
-	<li id="zoom_in" class="scale" data-rate='0.1'> <div>zoom in (alt + scroll up)</div> </li>
-	<li id="zoom_out" class="scale" data-rate='-0.1'> <div>zoom out (alt + scroll down)</down> </li>
+	<li id="zoom_in" class="scale" data-rate='0.1'> <div>zoom in</div><div class="keyboard">alt + scroll</div> </li>
+	<li id="zoom_out" class="scale" data-rate='-0.1'> <div>zoom out</div><div class="keyboard">alt + scroll</div> </li>
 	<li id='scale1'> <div>scale to default size</div> </li>
 	<li id="fit_to_screen"> <div>fit to page</div> </li>
 </ul>
@@ -16,12 +16,12 @@
 				<li id="clear"> <div>clear the canvas</div> </li>
 				<!-- ---------------------------------------------------------------- -->
 				<li class="spacer"></li> 
-				<li id="undo"> <div>undo</div> </li> 
-				<li id="redo"> <div>redo</div> </li>
+				<li id="undo"> <div class="pp">undo</div><div class="keyboard">ctrl + z</div> </li> 
+				<li id="redo"> <div class="pp">redo</div><div class="keyboard">ctrl + y</div> </li>
 				<!-- ---------------------------------------------------------------- -->
 				<li class="spacer"></li>
-				<li id="import_file"> <div><b>import</b> graph from : JSON file, SBML file, BioModels.net, Reactome </div> </li>
-				<li id="export_other"> <div>export current graph as: png,jpeg,pdf,tiff</div> </li>
+				<li id="import_file"> <div><b>import</b> graph from : JSON file, SBML file, BioModels.net, Reactome </div><div class="keyboard">ctrl + i</div> </li>
+				<li id="export_other"> <div>export current graph as: png,jpeg,pdf,tiff</div><div class="keyboard">ctrl + e</div> </li>
 				<!-- ---------------------------------------------------------------- -->
 				<li class="spacer"></li>
 				{{if not request.vars.html5only:}}
@@ -33,7 +33,7 @@
 				<li id="combine"> <div>combine selected objects</div> </li>
 				<li id='straighten_and_distribute' class="fkt_active"> <div>enable/disable: straighten edges and distributen all points on edges equally</div> </li>
 				<li id='hide_handles'> <div>hide/show all edge handles</div> </li>
-				<li id='del'> <div>delete selected nodes (or press <b>del</b>)</div> </li>
+				<li id='del'> <div>delete selected nodes</div><div class="keyboard">del</div> </li>
 				<!-- li id="layout_grahviz"> 
 				<div>apply automatic <b>graphviz</b> layout</div>
 				<img src="{{=URL(request.application, 'static/biographer-editor/img', 'graphviz.png')}}"/> 
@@ -41,8 +41,8 @@
 				</li -->
 				<!-- ---------------------------------------------------------------- -->
 				<li class="spacer"></li>
-				<li id='edit_all_nodes'> <div>resize/move all nodes</div> </li>
-				<li id='edit_no_nodes'> <div>resize/move no nodes</div> </li>
+				<li id='edit_all_nodes'> <div>select all nodes</div><div class="keyboard">ctrl + a</div> </li>
+				<li id='edit_no_nodes'> <div>select no nodes</div> </li>
 				<!-- ---------------------------------------------------------------- -->
 				<li class="spacer"></li>
 				<li id='align_vertical'> <div>align selected nodes vertically</div> </li>
@@ -72,15 +72,10 @@
 	<tr>
 		<td>
 			<ul class="tools_group tools_click">
-				<li class="active" id='cursor'> <div>select<br />ctrl+click to move and resize</div> </li>
-				<li id='move'> <div>move selected items</div> </li>
-				<!--li id='selection'>
-				<div>click to start drawing selection rectangle, click again to finish selection</div>
-				<img src="{{=URL(request.application, 'static/biographer-editor/img', 'selection.png')}}" id="selection" class="tool"/>
-				</li -->
-				<!-- li id='edit'> <div>edit</div> </li -->
-				<li id='Edge'> <div>draw edge</div> </li>
-				<li id='Spline'> <div>draw spline</div> </li>
+				<li class="active" id='cursor'> <div>select</div><div class="keyboard">ctrl + 1</div> </li>
+				<li id='move'> <div>pan canvas</div><div class="keyboard">ctrl + 2</div> </li>
+				<li id='Edge'> <div>draw edge</div><div class="keyboard">ctrl + 3</div> </li>
+				<li id='Spline'> <div>draw spline</div><div class="keyboard">ctrl + 4</div> </li>
 				<!-- li id="focus"> 
 				<div>focus to node</div>
 				<img src="{{=URL(request.application, 'static/biographer-editor/img', 'focus.png')}}"/> 
@@ -236,7 +231,7 @@
 </div>
 </div>
 <div class="rm">
-	<div class="rm_peek"><div></div></div>
+	<div class="rm_peek"><div class='bg'></div><div class="keyboard">F4</div></div>
 	<div class="rm_body">
 		<div class="message" style="display:none">Currently you can only change the attributes of one node at once.<br>
 		<br>

@@ -91,7 +91,7 @@ ul {
 
     cursor: pointer;
 }
-.rm_peek div{
+.rm_peek .bg{
     position: relative;
     top: 80px;
     width: 35px;
@@ -106,6 +106,13 @@ ul {
 }
 .rm_peek:hover{
     background-color: #eee;
+}
+.rm_peek .keyboard {
+    top: -10px;
+    left: -10px;
+}
+.rm_peek:hover .keyboard{
+    display: block;
 }
 .rm_body{
     width: 305px;
@@ -399,11 +406,30 @@ h3.section.down {
     z-index: 9999999; /* FIXME this does not work, still hidden in chomium */
 }
 .editor_menu li>div {
-    top: 50px;
+    top: 55px;
 }
-.tools_group li:hover>div, .editor_menu li:hover>div, .zoom_menu li:hover>div {
+.tools_group li:hover div, .editor_menu li:hover div, .zoom_menu li:hover div {
     display: block;
     z-index: 999;
+}
+/**********************************/
+.keyboard {
+    position: absolute;
+    background-color: #aaa!important;
+    padding: 2px;
+    border-radius: 5px;
+    opacity:1.0!important;
+    display: none;
+}
+.editor_menu .keyboard{
+    top: 30px;    
+}
+.tools_group .keyboard{
+    left: 40px;
+}
+.zoom_menu .keyboard{
+    top: -20px;
+    left: 0px;
 }
 /**********************************/
 .tools_group {
@@ -432,6 +458,9 @@ h3.section.down {
 }
 .tools_group li>div {
     left: 40px;
+}
+.tools_click li>div {
+    left: 100px;
 }
 #cursor {background: url('../img/biographer.sprites.png') -35px 0; }
 #move {background: url('../img/biographer.sprites.png') -35px -35px; }
@@ -468,7 +497,7 @@ h3.section.down {
     cursor: pointer;
 }
 .zoom_menu li div {
-    top: -30px;
+    top: -45px;
     left: 0px;
 }
 #zoom_in {background: url('../img/biographer.sprites.png') -105px -0px; }
