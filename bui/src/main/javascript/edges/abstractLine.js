@@ -44,7 +44,8 @@
         var source = this.source(), target = this.target();
 
         this.visible(source !== null && target !== null &&
-                source.visible() === true && target.visible() === true);
+                    (source.visible() === true || source instanceof bui.EdgeHandle) && 
+                    (target.visible() === true || target instanceof bui.EdgeHandle));
     };
 
     /**
@@ -287,7 +288,7 @@
                 return this;
             }
 
-            return privates.marker;
+            return privates.markerId;
         },
 
         /**
@@ -392,6 +393,8 @@
                 if (sbo !== null) {
                     updateJson(json, dataFormat.drawable.sbo, sbo);
                 }
+                updateJson(json, dataFormat.edge.type, privates.markerId);
+                
             }
 
             return json;

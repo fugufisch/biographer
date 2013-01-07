@@ -57,11 +57,21 @@
         identifier : function() {
             return identifier;
         },
+        edge : function(e){
+          var privates = this._privates(identifier);
+          if (e !==undefined){
+            privates.edge=e;
+            return this;
+          } else {
+            return privates.edge;
+          }
+        },
         includeInJSON : false,
         _circle : null,
         _forceRectangular : true,
         _enableResizing : false,
-        _calculationHook : circularShapeLineEndCalculationHookWithoutPadding
+//        _calculationHook : circularShapeLineEndCalculationHookWithoutPadding
+        _calculationHook : circularShapeLineEndCalculationHook
     };
 
     bui.util.setSuperClass(bui.EdgeHandle, bui.Node);

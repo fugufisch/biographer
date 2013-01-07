@@ -653,6 +653,8 @@
                 params.id = 'drawable'+counter_id
             else
                 params.id = id;
+            if (privates.drawables.hasOwnProperty(id)) console.log("graph: adding duplicate id " + id);
+            
             params.graph = this;
 
             drawable = new constructor(params);
