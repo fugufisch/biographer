@@ -57,7 +57,9 @@
                                                 source.absoluteCenter().y+privates.sourceSplineHandleVec.y),
           targetPosition = target.calculateLineEnd(target.absoluteCenter().x+privates.targetSplineHandleVec.x,
                                                 target.absoluteCenter().y+privates.targetSplineHandleVec.y);
-
+      //copy to privates for topLeft bottomRight prototype functions, which are needed for selection rectangles
+      privates.sourcePosition = sourcePosition;
+      privates.targetPosition = targetPosition;
       // repositon splineHandles if they are within the node
       var dx=sourcePosition.x-source.absoluteCenter().x,
           dy=sourcePosition.y-source.absoluteCenter().y;
@@ -139,6 +141,9 @@
       // calculate intersect point of line defined first or last line segment and border of node ( this is where the edge is supposed to start or end)
       var sourcePosition = source.calculateLineEnd(num==0 ? target : privates.points[0].point),
           targetPosition = target.calculateLineEnd(num==0 ? source : privates.points[num-1].point);
+      //copy to privates for topLeft bottomRight prototype functions, which are needed for selection rectangles
+      privates.sourcePosition = sourcePosition;
+      privates.targetPosition = targetPosition;
       // create Path data
       var data= ['M', sourcePosition.x, sourcePosition.y];
       for (var i=0;i<num;i++){
@@ -490,7 +495,8 @@
          * @private Source / target position and size listener
          */
         _sourceOrTargetDimensionChanged : function() {
-	    console.log("_sourceOrTargetDimensionChanged");
+	         //console.log("_sourceOrTargetDimensionChanged");
+           //TODO why is this called when the node is moved??? is this correct? fkt name does not sound like that, is it just the naming?
             updateEdge.call(this);
         },
         /**
@@ -678,6 +684,22 @@
             privates.lineStyle = style;
             redrawLines.call(this);
             return this;
+        },
+        /* top
+        */
+        absolutePosition: function(){
+          var privates = this._privates(identifier);
+          var x =0, y=0;
+          x= (privates.sourcePosition.x>privates.targetPosition.x)? privates.targetPosition.x :privates.sourcePosition.x;
+          y= (privates.sourcePosition.y>privates.targetPosition.y)? privates.targetPosition.y :privates.sourcePosition.y;
+          return {x:x, y:y};
+        },
+        absoluteBottomRight: function(){
+          var privates = this._privates(identifier);
+          var x =0, y=0;
+          x= (privates.sourcePosition.x<privates.targetPosition.x)? privates.targetPosition.x :privates.sourcePosition.x;
+          y= (privates.sourcePosition.y<privates.targetPosition.y)? privates.targetPosition.y :privates.sourcePosition.y;
+          return {x:x, y:y};
         },
         toJSON : function() {
             var json = bui.Edge.superClazz.prototype.toJSON.call(this),

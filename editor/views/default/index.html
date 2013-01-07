@@ -75,7 +75,6 @@
 				<li class="active" id='cursor'> <div>select</div><div class="keyboard">ctrl + 1</div> </li>
 				<li id='move'> <div>pan canvas</div><div class="keyboard">ctrl + 2</div> </li>
 				<li id='Edge'> <div>draw edge</div><div class="keyboard">ctrl + 3</div> </li>
-				<li id='Spline'> <div>draw spline</div><div class="keyboard">ctrl + 4</div> </li>
 				<!-- li id="focus"> 
 				<div>focus to node</div>
 				<img src="{{=URL(request.application, 'static/biographer-editor/img', 'focus.png')}}"/> 
@@ -261,6 +260,10 @@
 			</div>
 		</div>
 		<table class="rm_edge">
+			<tr>
+				<th>Spline</th>
+				<td><input type="checkbox" id='edge_is_spline'> is spline</td>
+			</tr>
 			<tr>
 				<th>End Marker</th>
 				<td>

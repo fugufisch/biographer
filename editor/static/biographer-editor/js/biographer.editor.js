@@ -205,7 +205,7 @@ Editor.prototype = {
         $('#canvas').unbind('mousemove');
         $('.follow').hide();
         $('.active').removeClass('active');
-        var mode2id = {'edit':'wrench', 'Edge':'edge', 'Spline':'spline', 'focus':'focus', 'move': 'move', 'selection': 'selection'};
+        var mode2id = {'edit':'wrench', 'Edge':'edge', 'focus':'focus', 'move': 'move', 'selection': 'selection'};
         if ((mode === undefined)||(mode == 'cursor')){
             $('#cursor').addClass('active');
             this.enableSelection();
@@ -218,7 +218,7 @@ Editor.prototype = {
         }
         if ( this.cur_mode == 'move' ){
                 this.disableSelection();
-        }else if ((mode == 'Edge')||(mode == 'Spline')){
+        }else if (mode == 'Edge'){
             for (var i = this.selected_nodes.length - 1; i >= 0; i--) {
                 this.selected_nodes[i].selected = false;
                 this.selected_nodes[i].removeClass('selected');
@@ -238,7 +238,7 @@ Editor.prototype = {
         }
     },
     setColorCombo: function(index){
-        index = parseInt(index);
+        index = parseInt(index,10);
         var drawables = this.graph.drawables();
         for (var key in drawables){
             var drwbl = drawables[key];
@@ -260,22 +260,15 @@ Editor.prototype = {
                 .source(this.selected_nodes[0])
                 .target(this.selected_nodes[1])
                 .visible(true);
-        if(this.cur_mode=='Spline') {
-          var dx=this.selected_nodes[1].position().x-this.selected_nodes[0].position().x;
-          var dy=this.selected_nodes[1].position().y-this.selected_nodes[0].position().y;
-          new_edge.setSplineHandlePositions([dx/5,dy/5,-dx/5,-dy/5]);
-        }
         for (var i = this.selected_nodes.length - 1; i >= 0; i--) {
             this.selected_nodes[i].selected = false;
             this.selected_nodes[i].removeClass('selected');
         }
-        this.selected_nodes = [];
         //set click listener on new edge
         new_edge.bind(bui.AbstractLine.ListenerType.click, editor.drawableSelect());
-        new_edge.addClass('selected');
-        console.log('edge selected '+new_edge.id());
+        this.selectAll(false);
+        this.select(new_edge);
         this.rightMenue_show(true);
-        this.selected_edges = [new_edge];
     },
     //-------------------------------------------//
     // drops a ui-helper node from node type menu and generates the corresponding graph node
@@ -375,50 +368,68 @@ Editor.prototype = {
     drawableSelect: function() {
         var this_editor = this; // closure for this object
         return function(drawable, select_status){
-            if(drawable.drawableType()=='node'){
-                if ((this_editor.cur_mode == 'cursor')||(this_editor.cur_mode == 'Edge')||(this_editor.cur_mode == 'Spline')){
-                    if ((this_editor.shifted === true)||(this_editor.cur_mode == 'Edge')||(this_editor.cur_mode == 'Spline')){
-                        //shif key is down
-                        //add all drawable to selection, if already selected remove selection
-                        if (drawable.selected === true){
-                            this_editor.deselect(drawable);
-                        }else{
-                            this_editor.select(drawable);
-                        }
+            if (this_editor.cur_mode in {undefined:1, 'cursor':1, 'Edge':1}){
+                if (
+                    (this_editor.shifted === true)||
+                    ( (this_editor.cur_mode == "Edge") && (drawable.drawableType()=='node') )
+                    ){
+                    //shif key is down
+                    //add all drawable to selection, if already selected remove selection
+                    if (drawable.selected === true){
+                        this_editor.deselect(drawable);
                     }else{
-                        //shift key is not down
-                        this_editor.selectAll(false);
                         this_editor.select(drawable);
                     }
+                }else{
+                    //shift key is not down
+                    this_editor.selectAll(false);
+                    this_editor.select(drawable);
                 }
-                //-------------------------------------
-                //-------------------------------------
-                if ((this_editor.cur_mode == 'Edge')||(this_editor.cur_mode == 'Spline')){
-                    if (this_editor.selected_nodes.length>=2){
-                        this_editor.createEdge();
-                    }
-                } else if (this_editor.cur_mode == 'focus'){//TODO focus is not part of the editor anymore since I do not consider this as a useful feature
-                    if(drawable.drawableType()=='node') bui.util.alignCanvas(this_editor.graph, drawable.id());
-                }
-                this_editor.rightMenu();
-            } else {
-              this_editor.select(drawable);
             }
+            if (this_editor.cur_mode == 'Edge'){
+                if (this_editor.selected_nodes.length>=2){
+                    this_editor.createEdge();
+                }
+            } /*else if (this_editor.cur_mode == 'focus'){//TODO focus is not part of the editor anymore since I do not consider this as a useful feature
+                if(drawable.drawableType()=='node') bui.util.alignCanvas(this_editor.graph, drawable.id());
+            }*/
+            this_editor.rightMenu();
         };
     },
     rightMenu: function(){
         var this_editor = this;
-        var i;
-        if((this.cur_mode == 'Edge')||(this.cur_mode == 'Spline')){
+        var i, drawable;
+        if(this.cur_mode == 'Edge'){
             $('.rm_node').hide();
             $('.rm_edge').show();
             $('.rm .message').hide();
-        }
-        else if(this.selected_nodes.length>=1){
+        }else if(this.selected_nodes>=1 && this.selected_edges>=1){
+            //FIXME
+            $('.rm_edge').hide();
+            $('.rm_node').hide();
+            $('.rm .message').show();
+        }else if(this.selected_edges.length>=1){
+            $('.rm_node').hide();
+            $('.rm_edge').show();
+            $('.rm .message').hide();
+            //===========================================
+            $('.selected_marker').removeClass('selected_marker');
+            drawable = this.selected_edges[0];
+            //===========================================
+            if(this.selected_edges.length==1){
+                $('#'+drawable.marker()).addClass('selected_marker');
+            }
+            //===========================================
+            if (drawable.spline() === true){
+                $('#edge_is_spline').attr('checked', 'checked');
+            }else {
+                $('#edge_is_spline').removeAttr('checked');
+            }
+        }else if(this.selected_nodes.length>=1){
             $('.rm_node').show();
             $('.rm_edge').hide();
             $('.rm .message').hide();
-            var drawable = this.selected_nodes[0];
+            drawable = this.selected_nodes[0];
             //===========================================
             var node_ids = [];
             for(i=0;i<this.selected_nodes.length;++i) node_ids.push(this.selected_nodes[i].id());
@@ -525,9 +536,6 @@ Editor.prototype = {
             showNext(this.selected_nodes, 'location');
             //===========================================
             //===========================================
-            
-        //}else if (this.selected_nodes.length>1){
-            //FIXME show things that can be change for several nodes
         }else{
             $('.rm_edge').hide();
             $('.rm_node').hide();
@@ -535,37 +543,40 @@ Editor.prototype = {
         }
     },
     editEdge: function(){
-        if (this.selected_edges.length == 1){
-            var drawable = this.selected_edges[0];
+        if (this.selected_edges.length >= 1){
             var cur_marker = $('.selected_marker').attr('id');
-            if(this.graph.language() == "PD"){
-                if (cur_marker == 'production') {
-                    if (!(drawable.source() instanceof bui.Process)){
-                      if (drawable.target() instanceof bui.Process){
-                        var h=drawable.source();  // swap source / target
-                        drawable.source(drawable.target());
-                        drawable.target(h);
-                      } else {
-                        jQuery('.flash').html("Error: production edge needs connect process to molecule").fadeIn().delay(1500).fadeOut();
-                        return;
-                      }
-                    }
-                }else if(cur_marker in {"control":1,'stimulation':1,'catalysis':1,'inhibition':1,'necessaryStimulation':1}){
-                    if (!(drawable.target() instanceof bui.Process)){
-                      if (drawable.source() instanceof bui.Process){
-                        var h=drawable.source();  // swap source / target
-                        drawable.source(drawable.target());
-                        drawable.target(h);
-                      } else {
-                        jQuery('.flash').html("Error: edge of this type needs connect molecule process").fadeIn().delay(1500).fadeOut();
-                        return;
-                      }
+            for(var i=0;i<this.selected_edges.length >= 1;++i){
+                var drawable = this.selected_edges[i];
+                //======================================
+                drawable.spline($('#edge_is_spline').is(':checked'));
+                //======================================
+                if(this.graph.language() == "PD"){
+                    if (cur_marker == 'production') {
+                        if (!(drawable.source() instanceof bui.Process)){
+                          if (drawable.target() instanceof bui.Process){
+                            var h=drawable.source();  // swap source / target
+                            drawable.source(drawable.target());
+                            drawable.target(h);
+                          } else {
+                            jQuery('.flash').html("Error: production edge needs connect process to molecule").fadeIn().delay(1500).fadeOut();
+                            return;
+                          }
+                        }
+                    }else if(cur_marker in {"control":1,'stimulation':1,'catalysis':1,'inhibition':1,'necessaryStimulation':1}){
+                        if (!(drawable.target() instanceof bui.Process)){
+                          if (drawable.source() instanceof bui.Process){
+                            var h=drawable.source();  // swap source / target
+                            drawable.source(drawable.target());
+                            drawable.target(h);
+                          } else {
+                            jQuery('.flash').html("Error: edge of this type needs connect molecule process").fadeIn().delay(1500).fadeOut();
+                            return;
+                          }
+                        }
                     }
                 }
+                drawable.marker(cur_marker);
             }
-            console.log('edit marker is '+cur_marker);
-            //drawable.json().sbo=bui.util.getSBOForMarkerId(sel.marker);
-            drawable.marker(cur_marker);
         }
     },
     editNode: function(){
@@ -625,30 +636,6 @@ Editor.prototype = {
             
             this.trigger_delayed_undoPush('changed node attributes');
         }
-    },
-    edgeModal: function(drawable, action) {
-        var sel=$('#marker_select_box')[0]; // the select <div>
-        $('.current_id').attr('id', drawable.id());
-        var type=drawable.marker(); // type as specified by sbo in edge
-        sel.marker=type;
-        var this_editor = this;
-        this_editor.modal = $("#edge_modal_input").modal({
-            overlayClose:true,
-            opacity:20,
-            onClose: function(){
-                
-                this_editor.save($('#action').html());
-                $.modal.close();
-            }
-        });
-        //=========================
-        /*$('#edge_modal_input').keydown(function(event){
-            if(event.keyCode == 13){
-            $.modal.close();
-                event.preventDefault();
-                return false;
-            }
-        });*/
     },
     //-------------------------------------------
     // helper function getting a list of first level nodes and edges
@@ -724,7 +711,8 @@ Editor.prototype = {
         if (drawable.drawableType() == 'node'){
           this.selected_nodes.push(drawable);
         } else {
-          this.selected_edges.push(drawable);
+            drawable.layoutElementsVisible(true);
+            this.selected_edges.push(drawable);
         }
         drawable.selected = true;
         drawable.addClass('selected');
@@ -735,7 +723,8 @@ Editor.prototype = {
         if (drawable.drawableType() == 'node'){
           this.selected_nodes.splice(this.selected_nodes.indexOf(drawable), 1);
         } else {
-          this.selected_edges.splice(this.selected_edges.indexOf(drawable), 1);
+            drawable.layoutElementsVisible(false);
+            this.selected_edges.splice(this.selected_edges.indexOf(drawable), 1);
         }
         drawable.selected = false;
         drawable.removeClass('selected');
@@ -870,10 +859,9 @@ Editor.prototype = {
                     var all_drawables = this_editor.graph.drawables();
                     for (var key in all_drawables) {
                         var drawable = all_drawables[key];
-                        if(drawable.drawableType() == 'node'){
+                        if(drawable.absolutePosition !== undefined){
                             var pos_top_left_abs = drawable.absolutePosition();
-                            var size = drawable.size();
-                            var pos_botm_rigt_abs = {x: pos_top_left_abs.x+size.width, y: pos_top_left_abs.y+size.height};
+                            var pos_botm_rigt_abs = drawable.absoluteBottomRight();
                             //console.log(JSON.stringify(pos_top_left_abs)+JSON.stringify(pos_botm_rigt_abs)+' == '+JSON.stringify(this_editor.selection_borders));
                             if((pos_top_left_abs.x>=this_editor.selection_borders.left) &&
                                 (pos_botm_rigt_abs.x<=this_editor.selection_borders.right) &&
@@ -883,6 +871,8 @@ Editor.prototype = {
                             }else{
                                 this_editor.deselect(drawable);
                             }
+                        } else {
+                            console.log('absoluteTopLeft no '+drawable.identifier() )
                         }
                     }
                     this_editor.rightMenu();
@@ -1115,6 +1105,12 @@ Editor.prototype = {
         });
         //=========================
         $('#layout_grid').click(function(evnt){
+            for(var key in this_editor.graph.drawables()){
+                var drawable = this_editor.graph.drawables()[key];
+                if(drawable.identifier() == 'Edge'){
+                    drawable.spline('false');
+                }
+            }
             nodes_edges = this_editor.get_nodes_edges();
             //orig_html = $('#layout_grid').html();
             //$('#layout_grid').html(this_editor.loading_img).ready(function(){
@@ -1125,6 +1121,8 @@ Editor.prototype = {
             }else{
                 bui.grid.put_on_grid();
                 bui.grid.render_current();
+                //TODO use this to make it look nice :D ... if too much time on hand
+                //bui.Node.bindStatic(bui.Node.ListenerType.click, editor.drawableSelect());//FIXME this does not work, y?
             }
             this_editor.undoPush('Applied Grid Layout');
             //});
@@ -1132,7 +1130,12 @@ Editor.prototype = {
         });
         //=========================
         $('#layout_force').click(function(){
-         
+            for(var key in this_editor.graph.drawables()){
+                var drawable = this_editor.graph.drawables()[key];
+                if(drawable.identifier() == 'Edge'){
+                    drawable.spline('false');
+                }
+            }
             orig_html = $('#layout_force').html();
             $('#layout_force').html(this_editor.loading_img);
             nodes_edges = this_editor.get_nodes_edges();
@@ -1176,7 +1179,6 @@ Editor.prototype = {
                     }catch(e){
                         jQuery('.flash').html('FAILED '+e).fadeIn();
                     }
-                    //bui.importUpdatedNodePositionsFromJSON(graph, editor_config.graphData, 300)
                 },
                 complete: function(){
                     $('#layout_biographer').html(orig_html);
@@ -1619,8 +1621,6 @@ Editor.prototype = {
                 if (event.keyCode == 50){this_editor.setMode('move'); }
                 //ctrl + 3 | cursor tool
                 if (event.keyCode == 51){this_editor.setMode('Edge'); }
-                //ctrl + 4 | cursor tool
-                if (event.keyCode == 52){this_editor.setMode('Spline'); }
                 return false;
             }
             // shift | detect if shift key is pressed

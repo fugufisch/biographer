@@ -30,12 +30,16 @@
                 null, 'class', classString);
         marker = this._privates(identifier).marker;
         if (marker !== null) {
-            this._line.setAttributeNS(null, 'marker-end',
-                    bui.util.createMarkerAttributeValue(
-                            bui.util.getHoverId(marker)
-                    ));
+            if(classString.indexOf(bui.settings.css.classes.lineHover) !== -1  || classString.indexOf('selected') !== -1){
+                this._line.setAttributeNS(null, 'marker-end',
+                        bui.util.createMarkerAttributeValue(
+                                bui.util.getHoverId(marker)
+                        ));
+            }else{
+                this._line.setAttributeNS(null, 'marker-end',
+                        bui.util.createMarkerAttributeValue(marker));
+            }
         }
-        
     };
 
     /**
@@ -131,23 +135,9 @@
         var marker;
         if (active === true && this.hoverEffect()) {
             this.addClass(bui.settings.css.classes.lineHover);
-
-            marker = this._privates(identifier).marker;
-            if (marker !== null) {
-                this._line.setAttributeNS(null, 'marker-end',
-                        bui.util.createMarkerAttributeValue(
-                                bui.util.getHoverId(marker)
-                        ));
-            }
         } else {
             this.removeClass(bui.settings.css.classes.lineHover);
-
-            marker = this._privates(identifier).marker;
-            if (marker !== null) {
-                this._line.setAttributeNS(null, 'marker-end',
-                        bui.util.createMarkerAttributeValue(marker));
-            }
-        }
+       }
     };
 
     /**
@@ -292,6 +282,7 @@
                                 [this, marker.id]);
                     }
                 }
+                classesChanged.call(this, this, this.classString());//make the marker look good whatever the classes are currently
 
                 return this;
             }

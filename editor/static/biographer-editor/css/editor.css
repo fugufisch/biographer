@@ -168,6 +168,7 @@ td {
     min-width: 1200px;
     min-height: 700px;
     border: solid 1px #ddd;
+    /*overflow: hidden; to only show whats in the canvas*/
 }
 /**********************************/
 .follow {
