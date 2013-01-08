@@ -391,7 +391,7 @@
         dx=x-privates.detectMove.prev[type].x;
         dy=y-privates.detectMove.prev[type].y;
       }
-      if ((dx>0 || dy>0) && dx==privates.detectMove.last.dx && dy==privates.detectMove.last.dy && privates.detectMove.last.type != type){
+      if ((dx!=0 || dy!=0) && dx==privates.detectMove.last.dx && dy==privates.detectMove.last.dy && privates.detectMove.last.type != type){
         // source and target moved by same amount
         for (var i=0;i<privates.points.length;i++){
           var pos=privates.points[i].point.absolutePositionCenter();
