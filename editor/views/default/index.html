@@ -289,9 +289,28 @@
 			</tr>
 		</table>
 		<table class='rm_node'>
-			<tr>
+			<tr class='node_type_box'>
 				<th>Type</th>
-				<td id="node_type"></td>
+				<td>
+					<select name="" id="node_type">
+						<option type="SimpleChemical" class="tool node PD">SimpleChemical</option>
+						<option type="Macromolecule" class="tool node PD ER">Macromolecule</option>
+						<option type="NucleicAcidFeature" class="tool node PD">NucleicAcidFeature</option>
+						<option type="UnspecifiedEntity" class="tool node PD">UnspecifiedEntity</option>
+						<option type="RectangularNode" class="tool node ER AF">Entity</option>
+						<option type="Perturbation" class="tool node PD ER AF">Perturbation</option>
+						<option type="Phenotype" class="tool node PD ER AF">Phenotype</option>
+						<option type="Compartment" class="tool node no_drop_complex PD AF"/>Compartment</option>
+						<option type="Complex" class="tool node PD">Complex</option>
+						<option type="EmptySet" class="tool node PD">EmptySet</option>
+						<option type="Process" class="tool node no_drop_complex PD">Process</option>
+						<option type="Tag" class="tool node PD">Tag</option>
+						<option type="LogicalOperator" class="tool node PD ER">LogicalOperator</option>
+						<option type="Association" class="tool node PD">Association</option>
+						<option type="Dissociation" class="tool node PD">Dissociation</option>
+						<option type="Annotation" class="tool node PD ER AF">Annotation</option>		
+					</select>
+				</td>
 			</tr>
 			<tr>
 				<th>Node ID</th>

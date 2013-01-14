@@ -279,8 +279,8 @@ Editor.prototype = {
     createNode: function(nodetype, e){
         //calculate position of new node
         //FIXME need the translated positions similar to selection rectangle
-        var pos_top = e.clientY-this.canvaspos.top;
-        var pos_left = e.clientX-this.canvaspos.left;
+        var pos = this.graph.toGraphCoords( e.pageX-this.canvaspos.left, e.pageY-this.canvaspos.top ) ;
+        
         //set size of new node
         var size = {};
         if(nodetype=='Process'){
@@ -296,7 +296,7 @@ Editor.prototype = {
         }
         //create new node
         var drawable = this.graph.add(bui[nodetype])
-            .position(pos_left, pos_top)
+            .position(pos.x, pos.y)
             .size(size.h, size.w)
             .visible(true);
         if((drawable.identifier()=="Association") || (drawable.identifier()=="Dissociation")){
@@ -335,7 +335,7 @@ Editor.prototype = {
         return function(){
             // must do this complicated hover function since hover() does not work since the dragged element is under the mouse
             // from http://stackoverflow.com/questions/5587703/css-hover-how-to-get-lower-divs-to-hover-as-well
-            // FIXME is ther a better solution??
+            // TODO is ther a better solution??
             $('.compartment, .complex').bind('intersect',function(e){
                 var $me = this_editor.graph.drawables()[$(this).attr('id')];
                 var pos = $(this).offset();
@@ -384,12 +384,8 @@ Editor.prototype = {
             if (parent.identifier() == 'Complex'){
                 parent.tableLayout();
             } else {
-                //FIME needs translation
-                var pos_top = e.clientY;
-                var pos_left = e.clientX;
-                pos_top = pos_top-parent.position().y;
-                pos_left = pos_left-parent.position().x;
-                drawable.position(pos_left, pos_top);
+                var pos = this.graph.toGraphCoords( e.pageX-this.canvaspos.left, e.pageY-this.canvaspos.top ) ;
+                drawable.absolutePosition(pos.x, pos.y);
             }
         }else {
             drawable.parent(this.graph);
@@ -486,7 +482,12 @@ Editor.prototype = {
             var node_ids = [];
             for(i=0;i<this.selected_nodes.length;++i) node_ids.push(this.selected_nodes[i].id());
             $('#node_id').html(node_ids.join(', '));
-            if (this.selected_nodes.length == 1) $('#node_type').html(drawable.identifier());
+            if (this.selected_nodes.length == 1) {
+                $('.node_type_box').show();
+                $('#node_type').val(drawable.identifier());
+            }else{
+                $('.node_type_box').hide();
+            }
             //===========================================
             if (drawable.parent().label !== undefined && this.selected_nodes.length==1){
                 $('.parent_box').show();
@@ -636,11 +637,21 @@ Editor.prototype = {
         var this_editor = this;
         if (this_editor.selected_nodes.length >= 1){
             var drawable = this_editor.selected_nodes[0];
+            // change the node type by delting the node and creating a new node
+            if( this_editor.selected_nodes.length == 1 && $('#node_type').val() != drawable.identifier()){
+                // FIXME must be implemented
+                //create the new node
+                //apply all attributes of old node if possible
+                //make edges point to new node
+                //delte old node
+            }
+            // set the label of the node
             if ( ($('#node_label').val() !== '') && (drawable.label !== undefined) ){
                 drawable.label($('#node_label').val()).adaptSizeToLabel();
             }
             //-----------------
             if (this_editor.selected_nodes.length==1){
+                //set child nodes like StateVariables and UnitsOfInformation
                 //brute force remove all children and add them agin, less code :D
                 var dc = drawable.children();
                 for (var i =0; i<dc.length; ++i){
@@ -975,7 +986,7 @@ Editor.prototype = {
         $('.language_selection div').removeClass('lang_selected');
         $('.language_selection .'+language_current).addClass('lang_selected');
         console.log('set lang '+language_current);
-        $('.tools_drag li, .marker_select, .combomaker tr').each(function(){
+        $('.tools_drag li, .marker_select, .combomaker tr, #node_type option').each(function(){
             if (! $(this).hasClass(language_current)){
                 $(this).hide();
             } else {
@@ -1569,22 +1580,11 @@ Editor.prototype = {
                 }
             );
             $("#canvas").mousemove(function(e){
-                //console.log($(e.currentTarget).attr('id'));//FIXME, needed for finding parent object - does not work on svg elements, just returns the canvas
                 $('#follow_'+nodetype).css('top', e.clientY+10).css('left', e.clientX+10);
             });
             $("#canvas").click(function(e){
                 this_editor.createNode(nodetype, e);
             });
-            /*
-            FIXME must implement this
-            // make compartments, complexes recieve droppable nodes
-            $('.Complex, .Compartment').droppable({
-                    hoverClass: 'drop_hover',
-                    over : function(){$('#canvas').droppable("disable");},
-                    out : function(){$('#canvas').droppable("enable");},
-                    drop: function(event, ui){this_editor.dropFkt(event, ui, this);}
-            });
-            */
         });
         $(".biomodels_start").click(function(){
             $(this).hide();
