@@ -637,14 +637,6 @@ Editor.prototype = {
         var this_editor = this;
         if (this_editor.selected_nodes.length >= 1){
             var drawable = this_editor.selected_nodes[0];
-            // change the node type by delting the node and creating a new node
-            if( this_editor.selected_nodes.length == 1 && $('#node_type').val() != drawable.identifier()){
-                // FIXME must be implemented
-                //create the new node
-                //apply all attributes of old node if possible
-                //make edges point to new node
-                //delte old node
-            }
             // set the label of the node
             if ( ($('#node_label').val() !== '') && (drawable.label !== undefined) ){
                 drawable.label($('#node_label').val()).adaptSizeToLabel();
@@ -696,6 +688,39 @@ Editor.prototype = {
                 if(this_editor.color_bg !== undefined) drawable.color( { background: this_editor.color_bg} );
                 if(this_editor.color_bd !== undefined) drawable.color( { border: this_editor.color_bd} );
                 if(this_editor.color_tx !== undefined) drawable.color( { label: this_editor.color_tx} );
+            }
+            // change the node type by delting the node and creating a new node
+            if( this_editor.selected_nodes.length == 1 && $('#node_type').val() != drawable.identifier()){
+                //create the new node
+                //apply all attributes of old node if possible
+		var new_node = this.graph.add(bui[$('#node_type').val()]) 
+		    .visible(true)
+		    .label(drawable.label())
+		    .parent(drawable.parent())
+		    .position(drawable.position().x, drawable.position().y)
+		    .size(drawable.size().width, drawable.size().height);
+		this.bindDrawable(new_node);
+		this.selectAll(false);
+		this.select(new_node);
+                //make edges point to new node
+		var all_drawables = this.graph.drawables();
+		var node_id = drawable.id();
+		for (var edge_key in all_drawables){
+		    var edge = all_drawables[edge_key];
+		    if (edge.identifier() in {'Edge':1,'Spline':1}){
+			if (edge.source().id() == node_id){
+			    all_drawables[edge_key].source(new_node);
+			}
+			if (edge.target().id() == node_id){
+			    all_drawables[edge_key].target(new_node);
+			}
+		    }
+		}
+                //delte old node
+		if(drawable.parent().identifier()!="Graph"){
+		    drawable.parent().removeChild(drawable);
+		}
+		drawable.remove();
             }
             
             this.trigger_delayed_undoPush('changed node attributes');
