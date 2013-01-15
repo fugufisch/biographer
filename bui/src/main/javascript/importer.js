@@ -384,7 +384,7 @@
             edge.spline(spline);
             if (spline){
               edge.sourceSplineHandle(edgeJSON.data.handles[0],edgeJSON.data.handles[1]);
-              edge.targetSplineHandle(edgeJSON.data.handles[-2],edgeJSON.data.handles[-1]);
+              edge.targetSplineHandle(edgeJSON.data.handles[edgeJSON.data.handles.length-2],edgeJSON.data.handles[edgeJSON.data.handles.length-1]);
             }
             if(edgeJSON.data.points !== undefined){
               for(var j=0; j<edgeJSON.data.points.length; j += 2){
