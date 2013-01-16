@@ -4,7 +4,6 @@ from gluon.contrib import simplejson
 def index():
     check_first_user()
     response.files.append(URL(request.application, 'static/biographer-editor/css', 'visualization-html.css'))
-    response.files.append(URL(request.application, 'static/biographer-editor/css', 'visualization-svg.css'))
     response.files.append(URL(request.application, 'static/biographer-editor/css', 'jquery-ui-1.8.13.css'))
     #response.files.append(URL(request.application, 'static/js', 'jquery.simulate.js'))  #FIXME why was this imported?
     response.files.append(URL(request.application, 'static/biographer-editor/js', 'jquery-ui-1.8.15.custom.min.js'))

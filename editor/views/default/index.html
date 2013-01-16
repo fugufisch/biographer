@@ -394,6 +394,10 @@
 		</table>
 	</div>
 </div>
+<!-- directly include the visualization file here so the js code can have direct access to it -->
+<style type="text/css" id="visualization-svg">
+	{{include 'default/visualization-svg.css'}}
+</style>
 <!-- --------------------------------------------------------------------------------- -->
 {{if session.debug:}}
 <script type="text/javascript">
@@ -423,7 +427,6 @@ editor_config = {
 //=========================
 editor = new Editor();
 bui.ready(function() {
-	//bui.settings.css.stylesheetUrl = '{{=URL(request.application, "static/biographer-editor/css", "visualization-svg.css")}}';//FIXME this is not working anymore
 	editor.graph = new bui.Graph($('#canvas')[0]);
 	//bui.Node.bindStatic(bui.Node.ListenerType.click, editor.drawableSelect());//FIXME this does not work, y?
 	editor.redrawGraph(editor_config.graphData);

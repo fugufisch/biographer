@@ -15,8 +15,6 @@ function Editor(){
     this.x = 1;
     this.canvaspos = $('#canvas').position();
     this.loading_img = '<img src="'+$('script[src*="js/biographer.editor.js"]').attr('src').replace('js/biographer.editor.js', 'img/loading.gif')+'" alt="loading" >';
-    this.bui_visualization_css_file = $('script[src*="js/biographer.editor.js"]').attr('src').replace('js/biographer.editor.js', 'css/visualization-svg.css');
-    this.images_base_path = $('script[src*="js/biographer.editor.js"]').attr('src').replace('js/biographer.editor.js', 'img/');
     this.active = false;//delayed undo push active?
     this.delayed;//needs to be initialized for saving of delay action
     this.ctrl_delayed;//same as above
@@ -1587,9 +1585,7 @@ Editor.prototype = {
         });
         //=========================
         $('#export_svg').click(function(){
-            $.get(this_editor.bui_visualization_css_file, function(viscss) {
-                window.location.href="data:text/svg;fileName=download.svg;charset=UTF-8," + encodeURIComponent($('#canvas svg').parent().html().replace(/@import url[^<]*/, viscss));
-            });
+            window.location.href="data:text/svg;charset=UTF-8," + encodeURIComponent($('#canvas svg').parent().html().replace(/@import url[^<]*/, $('#visualization-svg').html()));
         });
         //=========================
         $('#export_other').click(function() {

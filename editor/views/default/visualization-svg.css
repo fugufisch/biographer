@@ -31,12 +31,6 @@ ellipse, circle, g.rect > path, g.complex > path, g.compartment > rect, g.pertur
     stroke-width: 2px;
     stroke: black
 }
-g.cloneMarker > path, g.cloneMarker > circle, g.cloneMarker > rect {
-    fill: url(#cloneMarker);
-}
-g.existence > path {
-    fill: url(#stateVariableExistence);
-}
 g.location > path {
     fill: url(#stateVariableLocation);
 }
@@ -71,10 +65,6 @@ line {
     fill: none;
     stroke: black;
 }
-.line.mRED {
-    stroke: #f00;
-}
-
 .lineHover {
     stroke-width: 4;
 }
