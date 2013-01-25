@@ -540,6 +540,32 @@
           return point;
         },
         /**
+        * method to update position and spline vector of a point  
+        * 
+        * @param {idx} index of the point in edge
+        * @param {x,y} new position of point
+        * @param {dx,dy} spline handle vector if edge is spline
+        * @return {bui.Edge} fluent interface
+        */
+        updatePoint : function(idx,x,y,dx,dy,duration){
+          var privates = this._privates(identifier);
+          if (idx===undefined || idx<0 || idx>=privates.points.length) {
+            console.log("updatePoint expects point idx in current range of edge points");
+            return this;
+          }
+          if (privates.isSpline){
+            if (dx===undefined || dy===undefined) {
+              console.log("edge is spline, but dx,dy in updatePoint not set.");
+              return this; 
+            }
+            
+            privates.points[idx].dx=dx;
+            privates.points[idx].dy=dy;
+          }
+          privates.points[idx].point.absolutePositionCenter(x,y,duration); // this triggers updateEdge automatically
+          return this;
+        },
+        /**
         * method to get point at specified index
         * 
         * @param {Number} index of point
