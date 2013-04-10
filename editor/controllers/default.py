@@ -245,7 +245,7 @@ def render():
     response.files.append(URL(request.application, 'static/biographer-editor/js', 'd3.geom.js'))
     response.files.append(URL(request.application, 'static/biographer-editor/js/colorpicker/js', 'colorpicker.js'))
     response.files.append(URL(request.application, 'static/biographer-editor/js/colorpicker/css', 'colorpicker.css'))
-    return dict(in_url=in_url)
+    return dict(in_url=in_url, json_string=json_string)
 
 
 def render_help():
