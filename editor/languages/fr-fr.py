@@ -6,6 +6,7 @@
 '%Y-%m-%d': '%Y-%m-%d',
 '%Y-%m-%d %H:%M:%S': '%Y-%m-%d %H:%M:%S',
 'appadmin is disabled because insecure channel': 'appadmin is disabled because insecure channel',
+'Are you sure you want to delete this object?': 'Are you sure you want to delete this object?',
 'Authentication': 'Authentication',
 'Available databases and tables': 'Available databases and tables',
 'cache': 'cache',

@@ -164,6 +164,9 @@ Editor.prototype = {
                 $('.flash').html('Could not save last action to session history');
             }
         });
+        if (editor_config.onChange !== undefined){
+            editor_config.onChange(jsong);
+        }
     },
     //-------------------------------------------
     // reset to last state in undo list
@@ -987,10 +990,11 @@ Editor.prototype = {
                 this_editor.selection_borders = {};
                 if ((this_editor.cur_mode == 'cursor') || (this_editor.cur_mode === undefined)){
                     $('box').show();
-                    //box.style.display = 'block';
-                    box.style.display = '';
-                    box.style.left = event.detail.x0;
-                    box.style.top = event.detail.y0;
+                    box.style.display = 'block';
+                    // box.style.display = '';
+                    box.style.left = event.detail.x0 + 'px';
+                    box.style.top = event.detail.y0 + 'px';
+                    console.log(event.detail.x0);
                     box.style.width = Math.max(event.detail.dx, 0) + 'px';
                     box.style.height = Math.max(event.detail.dy, 0) + 'px';
                     
@@ -1010,23 +1014,23 @@ Editor.prototype = {
             function (graph, event) {
                 if ((this_editor.cur_mode == 'cursor') || (this_editor.cur_mode === undefined)){
                     if (event.detail.x0>event.detail.pageX){
-                        box.style.left = event.detail.pageX;
+                        box.style.left = event.detail.pageX + 'px';
                         box.style.width = Math.max(event.detail.x0 - event.detail.pageX) + 'px';
                         this_editor.selection_borders.left = (event.detail.pageX - this_editor.canvaspos.left) / this_editor.graph.scale() - this_editor.graph.translate().x,
                         this_editor.selection_borders.right = (event.detail.x0 - this_editor.canvaspos.left) / this_editor.graph.scale() - this_editor.graph.translate().x;
                     }else{
-                        box.style.left = event.detail.x0;
+                        box.style.left = event.detail.x0 + 'px';
                         box.style.width = Math.max(event.detail.pageX - event.detail.x0) + 'px';
                         this_editor.selection_borders.left = (event.detail.x0 - this_editor.canvaspos.left) / this_editor.graph.scale() - this_editor.graph.translate().x;
                         this_editor.selection_borders.right = (event.detail.pageX - this_editor.canvaspos.left) / this_editor.graph.scale() - this_editor.graph.translate().x;
                     }
                     if (event.detail.y0>event.detail.pageY){
-                        box.style.top = event.detail.pageY;
+                        box.style.top = event.detail.pageY + 'px';
                         box.style.height = Math.max(event.detail.y0 - event.detail.pageY) + 'px';
                         this_editor.selection_borders.bottom = (event.detail.y0 - this_editor.canvaspos.top) / this_editor.graph.scale() - this_editor.graph.translate().y;
                         this_editor.selection_borders.top = (event.detail.pageY - this_editor.canvaspos.top) / this_editor.graph.scale() - this_editor.graph.translate().y;
                     }else{
-                        box.style.top = event.detail.y0;
+                        box.style.top = event.detail.y0 + 'px';
                         box.style.height = Math.max(event.detail.pageY - event.detail.y0) + 'px';
                         this_editor.selection_borders.bottom = (event.detail.pageY - this_editor.canvaspos.top) / this_editor.graph.scale() - this_editor.graph.translate().y;
                         this_editor.selection_borders.top = (event.detail.y0 - this_editor.canvaspos.top) / this_editor.graph.scale() - this_editor.graph.translate().y;
@@ -2058,9 +2062,9 @@ Editor.prototype = {
         $('#scroll_right').click(function(){this_editor.scroll(scroll_step, 0); });
 		//-------------------------------------------------
         // websocket chat
-
-        if(!web2py_websocket('ws://'+editor_config.websocket_server+'/realtime/'+editor_config.websocket_group, this_editor.recieveAction()))
-            alert("html5 websocket not supported by your browser, download a later version");
+        // FIXME must include this funciton here
+        // if(!web2py_websocket('ws://'+editor_config.websocket_server+'/realtime/'+editor_config.websocket_group, this_editor.recieveAction()))
+        //     alert("html5 websocket not supported by your browser, download a later version");
 
         $('#msg').keypress(function(event){
             if(event.keyCode == 13){
