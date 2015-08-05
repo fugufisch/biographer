@@ -53,5 +53,3 @@ contact the developers directly please use biographer-dev@googlegroups.com.</p>
 
 </ul>
 </div>
-
-![example](/files/example.png)
